@@ -1,91 +1,80 @@
-
+from Bullet import Bullet
+from Player import Player
 import pygame
 import pygame_menu
 import pygame_menu.events
+from Enemy import Enemy
 import random
 import json
 import os
-import sys
-import pygamepopup
-from Bullet import Bullet
-from Player import Player
-from Enemy import Enemy
-from pygamepopup.components import Button, InfoBox
-from pygamepopup.menu_manager import MenuManager
-# setup:
-def resource_path(path):
-    try:
-        base_path = sys._MEIPASS
-    except AttributeError:
-        base_path = os.path.abspath("./")
 
-    return os.path.join(base_path, path)
+# setup:
 pygame.font.init()
 Comic_sans = pygame.font.SysFont('Comic Sans MS', 30)
-os.environ["SDL_AUDIODRIVER"] = "directsound"
+pygame.mixer.init()
 pygame.init()
-sound_enabled = True
-try:
-    pygame.mixer.init()
-except pygame.error as e:
-    print("Audio disabled:", e)
-    sound_enabled = False
+TEXTURE_PACKS = {
+    "TOGS": {
+                "player": ("assets/Images/Player-TOGS.png",  (130, 130)),
+        "bullet": ("assets/Images/Bullet-TOGS.png",  (70, 70)),
+        "enemy":  ("assets/Images/Ememy-TOGS.png",   (120, 120))
+
+    },
+    "Normal": {
+                "player": ("assets/Images/Player-norm.png",  (100, 100)),
+        "bullet": ("assets/Images/Bullet-norm.png",  (50, 50)),
+        "enemy":  ("assets/Images/Ememy-norm.png",   (80, 80))
+    }
+}
+
+current_texture_pack = "Normal"
 
 isFullscreen = False
-end_score=4
-player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
-if sound_enabled:
-    kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/killed.wav"))
-else:
-    kill_sound = None
-background_img_path= resource_path("assets/Images/background.jpeg")
-backgrong_img=pygame.image.load(background_img_path)
+player = Player(100)
+
 width, height = pygame.display.set_mode((900, 900)).get_size()
 display = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
-pygamepopup.init()
-bullet_image = pygame.image.load(resource_path("assets/Images/bullet.png")).convert_alpha()
-bullet_pygame = pygame.transform.scale(bullet_image, (50, 50))
-amount =1
-bullets = []
-bullet_speed = 2
-fire_cooldown = 300
-last_shot_time = 0
-menu_manager = MenuManager(display)
-start_menu = pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
-pregame_menu=pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
+
+start_menu = pygame_menu.Menu('ierhgfbdhyvf', 900, 900, theme=pygame_menu.themes.THEME_BLUE)
 pygame.display.flip()
+
 # Load Player Image
-bob = pygame.image.load(player.image).convert_alpha()
-BIG_BOB = pygame.transform.scale(bob, (100, 100))
+
 
 # ----------------- FUNCTIONS -----------------
+def switch_textures(selected, index):
+    global current_texture_pack
+    current_texture_pack = selected   # "Normal" or "TOGS"
+    print("Texture pack changed to:", current_texture_pack)
+
+def load_texture(path, size):
+    image = pygame.image.load(path).convert_alpha()
+    return pygame.transform.scale(image, size)
 
 
-def quit_game():
-    pygame.quit()
-    exit()
 
-win_popup = InfoBox(
-    "You Win!",
-    [
-        [
-            Button(quit_game,title="Quit")
 
-        ]
-    ]
-)
-lose_popup = InfoBox(
-    "You Lost",
-    [
-        [
-            Button(quit_game,title="Quit")
 
-        ]
-    ]
-)
-def Spawn_Ememies(A,enemies):
-    for _ in range(A):
-        enemies.append(Enemy(random.randint(0, 800), random.randint(0, 800)))
+def draw_enemy_health_bar(surface, enemy):
+    bar_width = 60
+    bar_height = 8
+
+    # Position bar above enemy
+    x = enemy.x + 20        # center above enemy sprite
+    y = enemy.y - 12        # slightly above the image
+
+    # Health ratio
+    ratio = enemy.health / 100
+
+    # Background (red)
+    pygame.draw.rect(surface, (255, 0, 0), (x, y, bar_width, bar_height))
+
+    # Current health (green)
+    pygame.draw.rect(surface, (0, 255, 0), (x, y, bar_width * ratio, bar_height))
+
+    # Border
+    pygame.draw.rect(surface, (0, 0, 0), (x, y, bar_width, bar_height), 2)
+
 def fullscreen():
     global isFullscreen, start_menu
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -102,7 +91,7 @@ def draw_health_bar(surface, x, y, current_health, max_health, width=200, height
     pygame.draw.rect(surface, (0, 0, 0), (x, y, width, height), 3)
 
 
-def save_score(username, score, filename=resource_path("assets/scores.json")):
+def save_score(username, score, filename="assets/scores.json"):
     if not os.path.exists(filename):
         data = {}
     else:
@@ -116,171 +105,164 @@ def save_score(username, score, filename=resource_path("assets/scores.json")):
         json.dump(data, f, indent=4)
 
 
-def get_score(username, filename=resource_path("assets/scores.json")):
+def get_score(username, filename="assets/scores.json"):
     if not os.path.exists(filename):
         return None
     with open(filename, "r") as f:
         data = json.load(f)
     return data.get(username)
 
-def shoot_bullet(enemies,bobx,boby):
-    global last_shot_time
-    current_time = pygame.time.get_ticks()
-    if current_time - last_shot_time >= fire_cooldown and enemies:
-        e = enemies[0]  # shoot nearest enemy
-        dx = e.x - bobx
-        dy = e.y - boby
-        dist = max((dx**2 + dy**2)**0.5, 0.001)
-
-        new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
-        bullets.append(new_bullet)
-        last_shot_time = current_time
 
 # ----------------- MAIN GAME LOOP -----------------
 
-def Main(player_name):
+def Main(name):
     fullscreen()
-    game_won = False
-    popup_shown = False
-    game_lost = False
-    player_speed = 1
-
-
-
-        # MULTIPLE ENEMIES
-    enemies = []
     pygame.key.set_repeat()
-    Spawn_Ememies(1,enemies)
+
+    # ======= LOAD SELECTED TEXTURES =======
+    textures = TEXTURE_PACKS[current_texture_pack]
+
+    player_path, player_size = textures["player"]
+    enemy_path, enemy_size = textures["enemy"]
+    bullet_path, bullet_size = textures["bullet"]
+
+    BIG_BOB = load_texture(player_path, player_size)
+
+    # BULLET
+    bullet_pygame = load_texture(bullet_path, bullet_size)
+
+    # ENEMY (path + size)
+    enemy_path, enemy_size = textures["enemy"]
+
+    # ======================================
+
+    killsound = pygame.mixer.Sound("assets/sounds/Killed.wav")
+    player_speed = 0.5
     bobx, boby = 100, 100
-    score = 0
-    screen_w, screen_h = display.get_size()
     running = True
+    score = 0
+    angle = 1
+    fire_cooldown = 300
+    last_shot_time = 0
+
+    screen_w, screen_h = display.get_size()
+
+    print(f"Your last High Score: {get_score(name)}")
+
+    # First enemy
+    enemies = [
+        Enemy(
+            random.randint(0, 800),
+            random.randint(0, 800),
+            enemy_path,
+            enemy_size
+        )
+    ]
+
+    bullets = []
+    bullet_speed = 1
 
     # =================== GAME LOOP =====================
     while running:
-            left_click_held = False
-            string = f"Your current score is {score}"
-            text = Comic_sans.render(string, False, (0, 0, 0))
+        angle += 1
+        text = Comic_sans.render(f"Your current score is {score}", False, (0, 0, 0))
+        current_time = pygame.time.get_ticks()
+        keys = pygame.key.get_pressed()
 
-            current_time = pygame.time.get_ticks()
-            keys = pygame.key.get_pressed()
-            mouse_buttons = pygame.mouse.get_pressed()
-            if mouse_buttons[0]:  # left button held
-                shoot_bullet(enemies,bobx,boby)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEMOTION:
-                    menu_manager.motion(event.pos)
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    menu_manager.click(event.button, event.pos)
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    left_click_held = True
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    left_click_held = False
-                        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
+        if keys[pygame.K_ESCAPE]:
+            running = False
 
+        # Player movement
+        if keys[pygame.K_a] and bobx > 10:
+            bobx -= player_speed
+        if keys[pygame.K_d] and bobx < screen_w - 110:
+            bobx += player_speed
+        if keys[pygame.K_w] and boby > 10:
+            boby -= player_speed
+        if keys[pygame.K_s] and boby < 900:
+            boby += player_speed
 
-            # ------------- PLAYER MOVEMENT LIMITS ----------------
-            
-            if keys[pygame.K_ESCAPE]:
-                    quit_game()
-            if not menu_manager.active_menu and not game_lost:
-                if keys[pygame.K_a] and bobx > 10:
-                    bobx -= player_speed
-                if keys[pygame.K_d] and bobx < screen_w - 110:
-                    bobx += player_speed
-                if keys[pygame.K_w] and boby > 10:
-                    boby -= player_speed
-                if keys[pygame.K_s] and boby < 900:
-                    boby += player_speed
-                if left_click_held:
-                    shoot_bullet(enemies,bobx,boby)
-                # ------------- SHOOTING ----------------
+        # Shooting
+        if keys[pygame.K_1] and current_time - last_shot_time >= fire_cooldown:
+            if enemies:
+                e = enemies[0]
+                dx = e.x - bobx
+                dy = e.y - boby
+                dist = max((dx**2 + dy**2)**0.5, 0.001)
+                new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
+                bullets.append(new_bullet)
+                last_shot_time = current_time
 
-            # ------------- FILL SCREEN & DRAW PLAYER ----------------
-            display.blit(pygame.transform.scale(backgrong_img,(screen_w,screen_h)))
-            display.blit(text, text.get_rect(center=(screen_w/2, 10)))
-            display.blit(BIG_BOB, (bobx, boby))
+        # Draw background & player
+        display.fill("white")
+        display.blit(text, text.get_rect(center=(screen_w/2, 10)))
+        display.blit(BIG_BOB, (bobx, boby))
 
-            # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
+        # Enemies
+        for e in enemies:
+            e.move_toward(bobx, boby)
+            e.draw(display)
+            draw_enemy_health_bar(display, e)
+
+            if abs(e.x - bobx) < 30 and abs(e.y - boby) < 30:
+                player.health -= 0.05
+
+            if player.health <= 0:
+                running = False
+                print("No more health left :(")
+
+        # Bullets
+        for bullet in bullets[:]:
+            bullet.x += bullet.vel_x
+            bullet.y += bullet.vel_y
+
+            display.blit(pygame.transform.rotate(bullet_pygame, angle), (bullet.x, bullet.y))
+
+            if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > 1000:
+                bullets.remove(bullet)
+                continue
+
             for e in enemies[:]:
-                e.move_toward(bobx, boby)
-                e.draw(display)
-                draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
-                # Damage player on touch
-                if abs(e.x - bobx) < 30 and abs(e.y - boby) < 30:
-                    player.health -= 0.05
-
-                # Player dead
-                if player.health <= 0:
-                    game_lost = True
-
-            # ------------- BULLET MOVEMENT + ENEMY COLLISION ----------------
-            for bullet in bullets[:]:
-                bullet.x += bullet.vel_x
-                bullet.y += bullet.vel_y
-
-                display.blit(bullet_pygame, (bullet.x, bullet.y))
-                
-                # Off screen delete
-                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > 1000:
+                if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
+                    e.health -= 10
                     bullets.remove(bullet)
-                    continue
+                    break
 
-                # Check bullet → enemy collision
-                for e in enemies[:]:
-                    if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
-                        e.health -= 10
-                        bullets.remove(bullet)
-                        break
+            for e in enemies[:]:
+                if e.health <= 0:
+                    enemies.remove(e)
+                    score += 1
+                    killsound.play()
 
-                # Remove dead enemies
-                for e in enemies[:]:
-                    if e.health <= 0:
-                        enemies.remove(e)
-                        score += 1
-                        kill_sound.play()
-                        
+                    enemies.append(Enemy(
+                        random.randint(0, 800),
+                        random.randint(0, 800),
+                        enemy_path,
+                        enemy_size
+                    ))
 
-                        # Respawn new enemy
-                        
-                        save_score(player_name, score)
-                        if score==end_score/4:
-                            
-                            Spawn_Ememies(2,enemies)
-                        if score==end_score/2:
-                            
-                            Spawn_Ememies(2,enemies)
-                        elif score < end_score:
-                            Spawn_Ememies(1,enemies)
-                if not enemies:
-                    game_won = True
+                    save_score(name, score)
 
-            if game_won and not popup_shown:
-                menu_manager.open_menu(win_popup)
-                popup_shown = True
-            if game_lost and not popup_shown:
-                menu_manager.open_menu(lose_popup)
-                popup_shown = True
-
-                    
-            menu_manager.display()        
-
-        # ------------- HEALTH BARS ----------------
-            draw_health_bar(display, bobx-10, boby-20, player.health, 100)
-                
-            pygame.display.flip()
-
+        draw_health_bar(display, 20, 1050, player.health, 100)
+        pygame.draw.rect(display, (0, 0, 0), (0, 0, screen_w, 1000), 5)
+        pygame.display.flip()
 
 
 # ----------------- MENU SETUP -----------------
 
 def start_buttons():
+    start_menu.add.selector(
+    "Textures: ",
+    [("Normal", "Normal"), ("TOGS", "TOGS")],
+    onchange=switch_textures
+)
     start_menu.add.text_input("type your name: ", copy_paste_enable=True, onreturn=Main)
     start_menu.add.button("Quit if you're not brave enough", pygame_menu.events.EXIT)
-    
+
 start_buttons()
 pygame.display.flip()
 start_menu.mainloop(display)
