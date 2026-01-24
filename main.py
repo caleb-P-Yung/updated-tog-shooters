@@ -1,26 +1,26 @@
 import os
-r= True
-while r:
-    i=input("Are you on linux? (y/n) ")
-    if i.lower() == "y" or i.lower() == "yes":
-        i2 = input("Are you using PulseAudio? (y/n) ")
-        if i2.lower() =="y" or i2.lower() == "yes":
-            os.environ["SDL_AUDIODRIVER"] = "pulseaudio"
-            r=False
-        if i2.lower() == "n" or i.lower == "no":
-            i3= input("Are You Use ALSA?")
-            if i3.lower() =="y" or i3.lower() == "yes":
-                os.environ["SDL_AUDIODRIVER"] = "alsa"
-                r=False
-            if i3.lower() == "n" or i3.lower() == "no":
-                i4=input("Are you using PipeWire?")
-                if i4.lower() =="y" or i4.lower() == "yes":
-                    os.environ["SDL_AUDIODRIVER"] = "pipewire"
-                    r=False
-    elif i.lower() == "n" or i.lower() == "no":
-        os.environ["SDL_AUDIODRIVER"] = "directaudio"
-        r=False
-    print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
+# r= True
+# while r:
+#     i=input("Are you on linux? (y/n) ")
+#     if i.lower() == "y" or i.lower() == "yes":
+#         i2 = input("Are you using PulseAudio? (y/n) ")
+#         if i2.lower() =="y" or i2.lower() == "yes":
+#             os.environ["SDL_AUDIODRIVER"] = "pulseaudio"
+#             r=False
+#         if i2.lower() == "n" or i.lower == "no":
+#             i3= input("Are You Use ALSA?")
+#             if i3.lower() =="y" or i3.lower() == "yes":
+#                 os.environ["SDL_AUDIODRIVER"] = "alsa"
+#                 r=False
+#             if i3.lower() == "n" or i3.lower() == "no":
+#                 i4=input("Are you using PipeWire?")
+#                 if i4.lower() =="y" or i4.lower() == "yes":
+#                     os.environ["SDL_AUDIODRIVER"] = "pipewire"
+#                     r=False
+#     elif i.lower() == "n" or i.lower() == "no":
+#         os.environ["SDL_AUDIODRIVER"] = "directaudio"
+#         r=False
+#     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
 import pygame
 import pygame_menu
 import pygame_menu.events
@@ -31,7 +31,7 @@ import pygamepopup
 from Bullet import Bullet
 from Player import Player
 from Enemy import Enemy
-from spike import spike
+from spike import Spikes
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
 # setup:
@@ -57,7 +57,7 @@ isFullscreen = False
 end_score=4
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
 if sound_enabled:
-    kill_sound = pygame.mixer.Sound(resource_path("/home/caleb/Desktop/Code files/Python/updated-tog-shooters/assets/sounds/Killed.wav"))
+    kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
 else:
     kill_sound =None
 background_img_path= resource_path("assets/Images/background.jpeg")
@@ -147,7 +147,7 @@ def save_score(username, score, filename=resource_path("assets/scores.json")):
 
 def get_score(username, filename=resource_path("assets/scores.json")):
     if not os.path.exists(filename):
-        return None
+        return "bob"
     with open(filename, "r") as f:
         data = json.load(f)
     return data.get(username)
@@ -176,17 +176,17 @@ def Main(player_name):
     spikes=[]
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
-    spikes.append(spike(100,100,100))
+    spikes.append(Spikes(screen_w,screen_h))
 
         # MULTIPLE ENEMIES
     enemies = []
     pygame.key.set_repeat()
-    Spawn_Ememies(1,enemies)
+    # Spawn_Ememies(1,enemies)
     bobx, boby = 100, 100
     score = 0
-    r=1
+    r=100
     running = True
-
+    save_score(player_name,score)
     # =================== GAME LOOP =====================
     while running:
             left_click_held = False
@@ -270,12 +270,13 @@ def Main(player_name):
                         e.health -= 10
                         bullets.remove(bullet)
                         break
-            # for s in spikes:
-            #     s.draw(display)
-            #     if s.x +r >= bobx or bobx <=s.x -r or s.y +r >= bobx or bobx >=s.y -r:
-            #         player.health -=0.05
+            for s in spikes:
+                s.draw(display)
+                if s.x +r <= bobx and bobx >=s.x -r or s.y +r >= boby and boby >=s.y -r:
+                    player.health -=0.05
+                print(f"spike x: {s.x} spike y: {s.y} damage radius: {r}")
                 # Remove dead enemies
-                for e in enemies[:]:
+            for e in enemies[:]:
                     if e.health <= 0:
                         enemies.remove(e)
                         score += 1
@@ -302,7 +303,7 @@ def Main(player_name):
                             Spawn_Ememies(2,enemies)
                         elif score < end_score:
                             Spawn_Ememies(1,enemies)
-                if not enemies:
+            if not enemies:
                     game_won = True
 
             if game_won and not popup_shown:
