@@ -21,6 +21,7 @@ import os
 #         os.environ["SDL_AUDIODRIVER"] = "directaudio"
 #         r=False
 #     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
+
 import pygame
 import pygame_menu
 import pygame_menu.events
@@ -34,7 +35,8 @@ from Enemy import Enemy
 from spike import Spikes
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
-# setup:
+from health_potion import HealthPotion
+
 
 
 def resource_path(path):
@@ -112,9 +114,16 @@ lose_popup = InfoBox(
         ]
     ]
 )
-def Spawn_Ememies(A,enemies):
+def Spawn(A,l,screen_w,screen_h,r,x,y):
     for _ in range(A):
-        enemies.append(Enemy(random.randint(0, 800), random.randint(0, 800)))
+            l.append(Spikes(screen_w, screen_h))
+            for s in l:
+                if s.x +r <= x and x >=s.x -r or s.y +r >= y and y >=s.y -r:
+                    l.remove(s)
+def Spawn_e(A,l,c):
+    for _ in range(A):
+            l.append(c(random.randint(0, 800), random.randint(0, 800)))
+
 def fullscreen():
     global isFullscreen, start_menu
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -174,17 +183,21 @@ def Main(player_name):
     game_lost = False
     player_speed = 1
     spikes=[]
+    potions=[]
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
-    spikes.append(Spikes(screen_w,screen_h))
-
+    
+    potions.append(HealthPotion(screen_w,screen_h))
+    potions.append(HealthPotion(screen_w,screen_h))
+    potions.append(HealthPotion(screen_w,screen_h))
         # MULTIPLE ENEMIES
     enemies = []
     pygame.key.set_repeat()
-    # Spawn_Ememies(1,enemies)
+    # Spawn_e(1,enemies,Enemy)
     bobx, boby = 100, 100
     score = 0
     r=100
+    Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
     running = True
     save_score(player_name,score)
     # =================== GAME LOOP =====================
@@ -199,19 +212,20 @@ def Main(player_name):
             current_time = pygame.time.get_ticks()
             keys = pygame.key.get_pressed()
             mouse_buttons = pygame.mouse.get_pressed()
-            if mouse_buttons[0]:  # left button held
-                shoot_bullet(enemies,bobx,boby)
+            if not menu_manager.active_menu and not game_lost:
+                if mouse_buttons[0]:  # left button held
+                    shoot_bullet(enemies,bobx,boby)
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEMOTION:
-                    menu_manager.motion(event.pos)
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    menu_manager.click(event.button, event.pos)
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    left_click_held = True
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    left_click_held = False
+                    if event.type == pygame.QUIT:
+                        running = False
+                    if event.type == pygame.MOUSEMOTION:
+                        menu_manager.motion(event.pos)
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        menu_manager.click(event.button, event.pos)
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        left_click_held = True
+                    if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                        left_click_held = False
                         
 
 
@@ -272,11 +286,22 @@ def Main(player_name):
                         break
             for s in spikes:
                 s.draw(display)
-                if s.x +r <= bobx and bobx >=s.x -r or s.y +r >= boby and boby >=s.y -r:
+                if bobx <= s.x+r and bobx >=s.x -r or boby <= s.y+r and boby >=s.y -r:
                     player.health -=0.05
-                print(f"spike x: {s.x} spike y: {s.y} damage radius: {r}")
+
+            for s in potions:
+                s.draw(display)
+                if s.x +25 <= bobx and bobx >=s.x -25 or s.y +25 >= boby and boby >=s.y -25:
+                    player.health +=1
+                    potions.remove(s)
+
                 # Remove dead enemies
             for e in enemies[:]:
+                    for s in spikes:
+                        s.draw(display)
+                        if s.x +r <= e.x and e.x >=s.x -r or s.y +r >= e.y and e.y >=s.y -r:
+                            if e.health <100:
+                                e.health+=0.05
                     if e.health <= 0:
                         enemies.remove(e)
                         score += 1
@@ -297,14 +322,14 @@ def Main(player_name):
                         save_score(player_name, score)
                         if score==end_score/4:
                             
-                            Spawn_Ememies(2,enemies)
+                            Spawn_e(2,enemies,Enemy)
                         if score==end_score/2:
                             
-                            Spawn_Ememies(2,enemies)
+                            Spawn_e(2,enemies,Enemy)
                         elif score < end_score:
-                            Spawn_Ememies(1,enemies)
-            if not enemies:
-                    game_won = True
+                            Spawn_e(1,enemies,Enemy)
+            # if not enemies:
+            #         game_won = True
 
             if game_won and not popup_shown:
                 menu_manager.open_menu(win_popup)
