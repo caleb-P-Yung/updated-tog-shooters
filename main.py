@@ -29,6 +29,7 @@ import random
 import json
 import sys
 import pygamepopup
+from power import powerup
 from Bullet import Bullet
 from Player import Player
 from Enemy import Enemy
@@ -178,15 +179,20 @@ def shoot_bullet(enemies,bobx,boby):
 
 def Main(player_name):
     fullscreen()
+    damage=0
+    SpowerCol= False
     game_won = False
     popup_shown = False
     game_lost = False
     player_speed = 1
+    powerupsoptions=[]
+    powerups=[]
     spikes=[]
     potions=[]
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
-    
+    for i in powerup.types:powerupsoptions.append(i)
+    powerups.append(powerup(screen_w,screen_h,random.choice(powerupsoptions)))
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
@@ -281,17 +287,21 @@ def Main(player_name):
                 # Check bullet → enemy collision
                 for e in enemies[:]:
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
-                        e.health -= 10
-                        bullets.remove(bullet)
-                        break
+                            if SpowerCol:
+                                e.health -= 20
+                            else:
+                                e.health -= 10
+                                bullets.remove(bullet)
+                                break
             for s in spikes:
                 s.draw(display)
-                if bobx <= s.x+r and bobx >=s.x -r or boby <= s.y+r and boby >=s.y -r:
+                if (s.x - r <= bobx <= s.x + r) and (s.y - r <= boby <= s.y + r):
                     player.health -=0.05
+
 
             for s in potions:
                 s.draw(display)
-                if s.x +25 <= bobx and bobx >=s.x -25 or s.y +25 >= boby and boby >=s.y -25:
+                if (s.x - r <= bobx <= s.x + r) and (s.y - r <= boby <= s.y + r):
                     player.health +=1
                     potions.remove(s)
 
@@ -299,7 +309,7 @@ def Main(player_name):
             for e in enemies[:]:
                     for s in spikes:
                         s.draw(display)
-                        if s.x +r <= e.x and e.x >=s.x -r or s.y +r >= e.y and e.y >=s.y -r:
+                        if (s.x - r <= e.x <= s.x + r) and (s.y - r <= e.y <= s.y + r):
                             if e.health <100:
                                 e.health+=0.05
                     if e.health <= 0:
