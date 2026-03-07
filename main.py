@@ -30,7 +30,7 @@ import json
 import sys
 import pygamepopup
 import math
-
+import time
 from power import powerup
 from Bullet import Bullet
 from Player import Player
@@ -63,8 +63,12 @@ end_score=4
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
 if sound_enabled:
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
+    start_sound = pygame.mixer.Sound(resource_path("assets/sounds/Startup.wav"))
+    shutdown_sound = pygame.mixer.Sound(resource_path("assets/sounds/Shutdown.wav"))
 else:
     kill_sound =None
+    start_sound = None
+    shutdown_sound = None
 background_img_path= resource_path("assets/Images/background.jpeg")
 backgrong_img=pygame.image.load(background_img_path)
 width, height = pygame.display.set_mode((900, 900)).get_size()
@@ -96,8 +100,16 @@ def randy(sy):
     ly=random.randrange(sy-100,sy)
     return random.randrange(ry,ly)
 def quit_game():
+    try:
+                            shutdown_sound.set_volume(1.0)
+                            shutdown_sound.play()
+                            print(f"Just Played:{shutdown_sound}")
+                            print("The lenegh of the Sound was:", shutdown_sound.get_length())
+    except AttributeError:
+                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+    time.sleep(3.2036733627319336)
     pygame.quit()
-    exit()
+    quit()
 
 win_popup = InfoBox(
     "You Win!",
@@ -121,7 +133,7 @@ def Spawn(A,l,screen_w,screen_h,r,x,y):
     for _ in range(A):
             l.append(Spikes(screen_w, screen_h))
             for s in l:
-                if s.x +r <= x and x >=s.x -r or s.y +r >= y and y >=s.y -r:
+                if (s.x - r <= x <= s.x + r) and (s.y - r <= y <= s.y + r):
                     l.remove(s)
 def Spawn_e(A,l,c):
     for _ in range(A):
@@ -181,6 +193,13 @@ def shoot_bullet(enemies,bobx,boby):
 def Main(player_name):
     Vsync = True
     fullscreen()
+    try:
+                            start_sound.set_volume(1.0)
+                            start_sound.play()
+                            print(f"Just Played:{start_sound}")
+                            print("The lenegh of the Sound was:", start_sound.get_length())
+    except AttributeError:
+                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     SpowerCoolDown=0
     SpowerCol= False
     game_won = False
@@ -194,14 +213,14 @@ def Main(player_name):
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
     powerupsoptions.append("s")
-    powerups.append(powerup(screen_w,screen_h,random.choice(powerupsoptions)))
+    
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
         # MULTIPLE ENEMIES
     enemies = []
     pygame.key.set_repeat()
-    # Spawn_e(1,enemies,Enemy)
+    Spawn_e(1,enemies,Enemy)
     bobx, boby = 100, 100
     score = 0
     r=100
@@ -218,7 +237,7 @@ def Main(player_name):
             highscore=get_score(player_name)
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
-            disFPS= f"FPS:{math.ceil(clock.get_fps())}"
+            disFPS= f"FPS:{math.ceil(clock.get_fps())}\n Strengh powered:{SpowerCol}"
             text2=Comic_sans.render(string2, False, (0, 0, 0))
             text = Comic_sans.render(string, False, (0, 0, 0))
             disFPST = Comic_sans.render(disFPS, False, (0, 0, 0))
@@ -231,6 +250,7 @@ def Main(player_name):
                     shoot_bullet(enemies,bobx,boby)
             for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        
                         running = False
                     if event.type == pygame.MOUSEMOTION:
                         menu_manager.motion(event.pos)
@@ -248,6 +268,7 @@ def Main(player_name):
             
             if keys[pygame.K_ESCAPE]:
                     quit_game()
+                    running = False
             if not menu_manager.active_menu and not game_lost:
                 if keys[pygame.K_a] and bobx > 10:
                     bobx -= player_speed
@@ -347,14 +368,15 @@ def Main(player_name):
                         # Respawn new enemy
                         
                         save_score(player_name, score)
-                        if score==end_score/4:
+                        if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
+                            powerups.append(powerup(screen_w,screen_h,random.choice(powerupsoptions)))
+                        #     Spawn_e(2,enemies,Enemy)
+                        if score % 2 ==0:
+                            Spawn(1,spikes,screen_w,screen_h,r,bobx,boby)
                             
-                            Spawn_e(2,enemies,Enemy)
-                        if score==end_score/2:
-                            
-                            Spawn_e(2,enemies,Enemy)
-                        elif score < end_score:
-                            Spawn_e(1,enemies,Enemy)
+                        Spawn_e(2,enemies,Enemy)
+                        # elif score < end_score:
+                        #     Spawn_e(1,enemies,Enemy)
             # if not enemies:
             #         game_won = True
 
