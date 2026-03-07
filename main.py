@@ -29,6 +29,8 @@ import random
 import json
 import sys
 import pygamepopup
+import math
+
 from power import powerup
 from Bullet import Bullet
 from Player import Player
@@ -48,7 +50,7 @@ def resource_path(path):
 
     return os.path.join(base_path, path)
 pygame.font.init()
-Comic_sans = pygame.font.SysFont('Comic Sans MS', 30)
+Comic_sans = pygame.font.SysFont('Pacifico', 30)
 pygame.init()
 sound_enabled = True
 try:
@@ -174,12 +176,12 @@ def shoot_bullet(enemies,bobx,boby):
         new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
         bullets.append(new_bullet)
         last_shot_time = current_time
-
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
+    Vsync = True
     fullscreen()
-    damage=0
+    SpowerCoolDown=0
     SpowerCol= False
     game_won = False
     popup_shown = False
@@ -191,7 +193,7 @@ def Main(player_name):
     potions=[]
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
-    for i in powerup.types:powerupsoptions.append(i)
+    powerupsoptions.append("s")
     powerups.append(powerup(screen_w,screen_h,random.choice(powerupsoptions)))
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
@@ -207,13 +209,19 @@ def Main(player_name):
     running = True
     save_score(player_name,score)
     # =================== GAME LOOP =====================
+    clock=pygame.time.Clock()
+    
     while running:
+            if Vsync:
+                clock.tick(60)
             left_click_held = False
             highscore=get_score(player_name)
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
+            disFPS= f"FPS:{math.ceil(clock.get_fps())}"
             text2=Comic_sans.render(string2, False, (0, 0, 0))
             text = Comic_sans.render(string, False, (0, 0, 0))
+            disFPST = Comic_sans.render(disFPS, False, (0, 0, 0))
             global current_time
             current_time = pygame.time.get_ticks()
             keys = pygame.key.get_pressed()
@@ -243,11 +251,11 @@ def Main(player_name):
             if not menu_manager.active_menu and not game_lost:
                 if keys[pygame.K_a] and bobx > 10:
                     bobx -= player_speed
-                if keys[pygame.K_d] and bobx < screen_w - 110:
+                if keys[pygame.K_d] and bobx < screen_w-110:
                     bobx += player_speed
-                if keys[pygame.K_w] and boby > 10:
+                if keys[pygame.K_w] and boby > 100:
                     boby -= player_speed
-                if keys[pygame.K_s] and boby < 900:
+                if keys[pygame.K_s] and boby < screen_h-110:
                     boby += player_speed
                 if left_click_held:
                     shoot_bullet(enemies,bobx,boby)
@@ -257,7 +265,13 @@ def Main(player_name):
             display.blit(pygame.transform.scale(backgrong_img,(screen_w,screen_h)))
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
+            display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
             display.blit(BIG_BOB, (bobx, boby))
+            for p in powerups:
+                p.draw(display)
+                if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                    SpowerCol=True
+                    powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:
@@ -288,7 +302,10 @@ def Main(player_name):
                 for e in enemies[:]:
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
                             if SpowerCol:
+                                SpowerCoolDown=+1
                                 e.health -= 20
+                            if SpowerCoolDown >= 1000:
+                                SpowerCoolDown = not SpowerCol
                             else:
                                 e.health -= 10
                                 bullets.remove(bullet)
@@ -355,6 +372,7 @@ def Main(player_name):
             draw_health_bar(display, bobx-10, boby-20, player.health, 100)
                 
             pygame.display.flip()
+            
 
 
 

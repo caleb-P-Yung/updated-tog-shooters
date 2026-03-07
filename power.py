@@ -3,7 +3,7 @@ import pygame
 class powerup:
     def __init__(self, maxx, maxy,type):
         self.x = random.randint(0+10, maxx-10)
-        self.y = random.randint(0+10, maxy-10)
+        self.y = random.randint(0+10, maxy-100)
         self.types = types=["s"]
         self.type=type
     def gettype(self):
