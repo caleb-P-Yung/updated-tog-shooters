@@ -1,6 +1,6 @@
 {
     "bob": {
-        "Highscore": 43
+        "Highscore": 56
     },
     "this is a test": {
         "Highscore": 12
@@ -15,6 +15,9 @@
         "Highscore": 0
     },
     "bo": {
+        "Highscore": 0
+    },
+    "caleb": {
         "Highscore": 0
     }
 }

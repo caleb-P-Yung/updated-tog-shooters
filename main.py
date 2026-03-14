@@ -60,12 +60,16 @@ except pygame.error as e:
 
 isFullscreen = False
 end_score=4
+
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
 if sound_enabled:
+    background_sound = pygame.mixer.Sound(resource_path("assets/sounds/BackGroundMusic.mp3"))
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
     start_sound = pygame.mixer.Sound(resource_path("assets/sounds/Startup.wav"))
     shutdown_sound = pygame.mixer.Sound(resource_path("assets/sounds/Shutdown.wav"))
+
 else:
+    background_sound = None
     kill_sound =None
     start_sound = None
     shutdown_sound = None
@@ -101,6 +105,7 @@ def randy(sy):
     return random.randrange(ry,ly)
 def quit_game():
     try:
+                            background_sound.fadeout(0)
                             shutdown_sound.set_volume(1.0)
                             shutdown_sound.play()
                             print(f"Just Played:{shutdown_sound}")
@@ -108,6 +113,7 @@ def quit_game():
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     time.sleep(3.2036733627319336)
+    
     pygame.quit()
     quit()
 
@@ -218,6 +224,13 @@ def Main(player_name):
     potions.append(HealthPotion(screen_w,screen_h))
     potions.append(HealthPotion(screen_w,screen_h))
         # MULTIPLE ENEMIES
+    time.sleep(4.814058780670166)
+    # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
+    try:
+                    background_sound.play(loops=-1)
+                    
+    except AttributeError:
+                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     enemies = []
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
@@ -231,6 +244,8 @@ def Main(player_name):
     clock=pygame.time.Clock()
     
     while running:
+
+            
             if Vsync:
                 clock.tick(60)
             left_click_held = False
@@ -268,6 +283,7 @@ def Main(player_name):
             
             if keys[pygame.K_ESCAPE]:
                     quit_game()
+                    pygame.mixer.stop()
                     running = False
             if not menu_manager.active_menu and not game_lost:
                 if keys[pygame.K_a] and bobx > 10:
