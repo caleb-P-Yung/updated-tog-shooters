@@ -63,7 +63,7 @@ end_score=4
 
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
 if sound_enabled:
-    background_sound = pygame.mixer.Sound(resource_path("assets/sounds/BackGroundMusic.mp3"))
+    background_sound = pygame.mixer.Sound(resource_path("assets/sounds/title.wav"))
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
     start_sound = pygame.mixer.Sound(resource_path("assets/sounds/Startup.wav"))
     shutdown_sound = pygame.mixer.Sound(resource_path("assets/sounds/Shutdown.wav"))
