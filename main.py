@@ -38,7 +38,6 @@ from Enemy import Enemy
 from spike import Spikes
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
-from health_potion import HealthPotion
 
 
 
@@ -206,23 +205,28 @@ def Main(player_name):
                             print("The lenegh of the Sound was:", start_sound.get_length())
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
-    SpowerCoolDown=0
+    
+    isStunCol = False
     SpowerCol= False
+
     game_won = False
     popup_shown = False
     game_lost = False
+
     player_speed = 1
+    SpowerCoolDown=1
+    StpowerCoolDown=1
+
     powerupsoptions=[]
     powerups=[]
     spikes=[]
-    potions=[]
+
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
     powerupsoptions.append("s")
-    
-    potions.append(HealthPotion(screen_w,screen_h))
-    potions.append(HealthPotion(screen_w,screen_h))
-    potions.append(HealthPotion(screen_w,screen_h))
+    powerups.append(powerup(screen_w,screen_h,"h"))
+    powerups.append(powerup(screen_w,screen_h,"h"))
+    powerups.append(powerup(screen_w,screen_h,"h"))
         # MULTIPLE ENEMIES
     time.sleep(4.814058780670166)
     # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
@@ -235,7 +239,7 @@ def Main(player_name):
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = 100, 100
-    score = 0
+    score = 7
     r=100
     Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
     running = True
@@ -248,11 +252,22 @@ def Main(player_name):
             
             if Vsync:
                 clock.tick(60)
+            if SpowerCol:
+                SpowerCoolDown+=1
+                if SpowerCoolDown >= 1000:
+                    
+                    SpowerCoolDown = not SpowerCol
+                    SpowerCol = False
+            if isStunCol:
+                StpowerCoolDown+=1
+                if StpowerCoolDown >= 1000:
+                    StpowerCoolDown = 0
+                    isStunCol = False
             left_click_held = False
             highscore=get_score(player_name)
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
-            disFPS= f"FPS:{math.ceil(clock.get_fps())}\n Strengh powered:{SpowerCol}"
+            disFPS= f"FPS:{math.ceil(clock.get_fps())}\n Strengh powered:{SpowerCol} Stun powered:{isStunCol}"
             text2=Comic_sans.render(string2, False, (0, 0, 0))
             text = Comic_sans.render(string, False, (0, 0, 0))
             disFPST = Comic_sans.render(disFPS, False, (0, 0, 0))
@@ -306,13 +321,22 @@ def Main(player_name):
             display.blit(BIG_BOB, (bobx, boby))
             for p in powerups:
                 p.draw(display)
-                if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                    SpowerCol=True
-                    powerups.remove(p)
+                if p.type == "s":
+                    if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                        SpowerCol=True
+                        powerups.remove(p)
+                if p.type == "st":
+                    if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                        isStunCol=True
+                        powerups.remove(p)
+                if p.type == "h":
+                    if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and player.health <100:
+                        player.health +=1
+                        powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:
-                e.move_toward(bobx, boby)
+                e.move_toward(bobx, boby,isStunCol)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
                 # Damage player on touch
@@ -339,10 +363,9 @@ def Main(player_name):
                 for e in enemies[:]:
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
                             if SpowerCol:
-                                SpowerCoolDown=+1
+                                
                                 e.health -= 20
-                            if SpowerCoolDown >= 1000:
-                                SpowerCoolDown = not SpowerCol
+                            
                             else:
                                 e.health -= 10
                                 bullets.remove(bullet)
@@ -353,11 +376,8 @@ def Main(player_name):
                     player.health -=0.05
 
 
-            for s in potions:
-                s.draw(display)
-                if (s.x - r <= bobx <= s.x + r) and (s.y - r <= boby <= s.y + r):
-                    player.health +=1
-                    potions.remove(s)
+
+                
 
                 # Remove dead enemies
             for e in enemies[:]:
@@ -385,7 +405,9 @@ def Main(player_name):
                         
                         save_score(player_name, score)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
-                            powerups.append(powerup(screen_w,screen_h,random.choice(powerupsoptions)))
+                            powerups.append(powerup(screen_w,screen_h,"s"))
+                        if str(abs(score))[0] == "4" or str(abs(score))[0] == "8":
+                            powerups.append(powerup(screen_w,screen_h,"st"))
                         #     Spawn_e(2,enemies,Enemy)
                         if score % 2 ==0:
                             Spawn(1,spikes,screen_w,screen_h,r,bobx,boby)

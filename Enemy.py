@@ -19,12 +19,13 @@ class Enemy:
             (100, 100)
         )
 
-    def move_toward(self, target_x, target_y):
-        dx = target_x - self.x
-        dy = target_y - self.y
-        dist = (dx*dx + dy*dy) ** 0.5
-        if dist != 0:
-            self.x += self.speed * dx / dist
+    def move_toward(self, target_x, target_y, PowerCol):
+        if not PowerCol:
+            dx = target_x - self.x
+            dy = target_y - self.y
+            dist = (dx*dx + dy*dy) ** 0.5
+            if dist != 0:
+                self.x += self.speed * dx / dist
             self.y += self.speed * dy / dist
 
     def draw(self, screen):
