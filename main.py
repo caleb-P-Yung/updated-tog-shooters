@@ -208,14 +208,18 @@ def Main(player_name):
     
     isStunCol = False
     SpowerCol= False
+    isSpeedCol=False
 
     game_won = False
     popup_shown = False
     game_lost = False
 
     player_speed = 1
+    player_speed_temp=0.25
+
     SpowerCoolDown=1
     StpowerCoolDown=1
+    SppowerCoolDown=1
 
     powerupsoptions=[]
     powerups=[]
@@ -227,6 +231,7 @@ def Main(player_name):
     powerups.append(powerup(screen_w,screen_h,"h"))
     powerups.append(powerup(screen_w,screen_h,"h"))
     powerups.append(powerup(screen_w,screen_h,"h"))
+    powerups.append(powerup(screen_w,screen_h,"sp"))
         # MULTIPLE ENEMIES
     time.sleep(4.814058780670166)
     # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
@@ -263,6 +268,12 @@ def Main(player_name):
                 if StpowerCoolDown >= 1000:
                     StpowerCoolDown = 0
                     isStunCol = False
+            if isSpeedCol:
+                SppowerCoolDown+=1
+                player_speed = player_speed+player_speed_temp
+                if SppowerCoolDown >= 1000:
+                    SppowerCoolDown = 0
+                    isSpeedCol = False
             left_click_held = False
             highscore=get_score(player_name)
             string2=f"Your HighScore is {highscore["Highscore"]}"
@@ -301,14 +312,31 @@ def Main(player_name):
                     pygame.mixer.stop()
                     running = False
             if not menu_manager.active_menu and not game_lost:
-                if keys[pygame.K_a] and bobx > 10:
+
+                if keys[pygame.K_a] and bobx > 0:
                     bobx -= player_speed
-                if keys[pygame.K_d] and bobx < screen_w-110:
+                if keys[pygame.K_a] and bobx <= 10:
+                    bobx=screen_w-108
+                    bobx -= player_speed
+
+                if keys[pygame.K_d] and bobx < screen_w:
                     bobx += player_speed
-                if keys[pygame.K_w] and boby > 100:
+                if keys[pygame.K_d] and bobx >= screen_w-109:
+                    bobx = 10
+                    bobx += player_speed
+
+                if keys[pygame.K_w]:
                     boby -= player_speed
-                if keys[pygame.K_s] and boby < screen_h-110:
+                if keys[pygame.K_w] and boby <= 100:
+                    boby=screen_h-109
+                    boby -= player_speed
+
+                if keys[pygame.K_s]:
                     boby += player_speed
+                if keys[pygame.K_s] and boby >= screen_h-110:
+                    boby=99
+                    boby += player_speed
+
                 if left_click_held:
                     shoot_bullet(enemies,bobx,boby)
                 # ------------- SHOOTING ----------------
@@ -333,6 +361,9 @@ def Main(player_name):
                     if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and player.health <100:
                         player.health +=1
                         powerups.remove(p)
+                if p.type=="sp":
+                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                        isSpeedCol=True
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:

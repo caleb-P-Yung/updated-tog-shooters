@@ -15,3 +15,5 @@ class powerup:
             screen.blit(pygame.transform.scale(pygame.image.load("assets/Images/stun.png").convert_alpha(), (50, 50)), (self.x, self.y))
         if self.type == "h":
             screen.blit(pygame.transform.scale(pygame.image.load("assets/Images/health.png").convert_alpha(), (50, 50)), (self.x, self.y))
+        if self.type == "sp":
+            screen.blit(pygame.transform.scale(pygame.image.load("assets/Images/speed.png").convert_alpha(), (50, 50)), (self.x, self.y))
