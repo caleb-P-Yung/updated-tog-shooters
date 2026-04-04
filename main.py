@@ -31,11 +31,14 @@ import sys
 import pygamepopup
 import math
 import time
+
 from power import powerup
+from EBullet import EBullet
 from Bullet import Bullet
 from Player import Player
 from Enemy import Enemy
 from spike import Spikes
+
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
 
@@ -60,7 +63,7 @@ except pygame.error as e:
 isFullscreen = False
 end_score=4
 
-player = Player(100, resource_path("assets/Images/Conky-Bob.png"))
+player = Player(100, resource_path("assets/Images/Conky-Bob.png"), 100, 100)
 if sound_enabled:
     background_sound = pygame.mixer.Sound(resource_path("assets/sounds/title.wav"))
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
@@ -78,9 +81,12 @@ width, height = pygame.display.set_mode((900, 900)).get_size()
 display = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
 pygamepopup.init()
 bullet_image = pygame.image.load(resource_path("assets/Images/bullet.png")).convert_alpha()
+Ebullet_image = pygame.image.load(resource_path("assets/Images/egg.png")).convert_alpha()
 bullet_pygame = pygame.transform.scale(bullet_image, (50, 50))
+Ebullet_pygame = pygame.transform.scale(Ebullet_image, (50, 50))
 amount =1
 bullets = []
+Ebullets = []
 bullet_speed = 2
 fire_cooldown = 300
 last_shot_time = 0
@@ -193,11 +199,27 @@ def shoot_bullet(enemies,bobx,boby):
         new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
         bullets.append(new_bullet)
         last_shot_time = current_time
+def shoot_enemy_bullet(enemy):
+    current_time = pygame.time.get_ticks()
+
+    if current_time - enemy.last_shot_time >= fire_cooldown:
+        e = player  # target player
+        dx = e.x - enemy.x
+        dy = e.y - enemy.y
+        dist = max((dx**2 + dy**2)**0.5, 0.001)
+
+        new_bullet = EBullet(
+            enemy.x,
+            enemy.y,
+            (dx/dist) * bullet_speed,
+            (dy/dist) * bullet_speed
+        )
+
+        Ebullets.append(new_bullet)
+        enemy.last_shot_time = current_time
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
-    Vsync = True
-    fullscreen()
     try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
@@ -206,6 +228,10 @@ def Main(player_name):
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     
+
+    Vsync = True
+    fullscreen()
+
     isStunCol = False
     SpowerCol= False
     isSpeedCol=False
@@ -243,7 +269,7 @@ def Main(player_name):
     enemies = []
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
-    bobx, boby = 100, 100
+    bobx, boby = player.x, player.y
     score = 7
     r=100
     Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
@@ -253,7 +279,7 @@ def Main(player_name):
     clock=pygame.time.Clock()
     
     while running:
-
+            player.x, player.y = bobx,boby
             
             if Vsync:
                 clock.tick(60)
@@ -364,10 +390,13 @@ def Main(player_name):
                 if p.type=="sp":
                      if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
                         isSpeedCol=True
+                        powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
+            for e in enemies[:]:shoot_enemy_bullet(enemy=e)
             for e in enemies[:]:
                 e.move_toward(bobx, boby,isStunCol)
+                shoot_enemy_bullet(enemy=e)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
                 # Damage player on touch
@@ -392,6 +421,7 @@ def Main(player_name):
 
                 # Check bullet → enemy collision
                 for e in enemies[:]:
+
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
                             if SpowerCol:
                                 
@@ -400,6 +430,23 @@ def Main(player_name):
                             else:
                                 e.health -= 10
                                 bullets.remove(bullet)
+                                break
+            
+            for bullet in Ebullets[:]:
+                bullet.x += bullet.vel_x
+                bullet.y += bullet.vel_y
+
+                display.blit(Ebullet_pygame, (bullet.x, bullet.y))
+                
+                # Off screen delete
+                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > 1000:
+                    # bullets.remove(bullet)
+                    continue
+
+                # Check bullet → enemy collision
+                if abs(bullet.x - bobx) < 20 and abs(bullet.y - boby) < 20:
+                                player.health -= 0.5
+                                Ebullets.remove(bullet)
                                 break
             for s in spikes:
                 s.draw(display)
@@ -472,6 +519,13 @@ def Main(player_name):
 def start_buttons():
     start_menu.add.text_input("type your name: ", copy_paste_enable=True, onreturn=Main)
     start_menu.add.button("Quit if you're not brave enough", pygame_menu.events.EXIT)
+try:
+                            start_sound.set_volume(1.0)
+                            start_sound.play()
+                            print(f"Just Played:{start_sound}")
+                            print("The lenegh of the Sound was:", start_sound.get_length())
+except AttributeError:
+                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     
 start_buttons()
 pygame.display.flip()

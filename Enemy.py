@@ -14,10 +14,12 @@ class Enemy:
         self.y = y
         self.speed = speed
         self.health = health
+        self.last_shot_time = 0
         self.image = pygame.transform.scale(
             pygame.image.load(resource_path("assets/Images/Ememy.png")).convert_alpha(),
             (100, 100)
         )
+        self.bullets = []
 
     def move_toward(self, target_x, target_y, PowerCol):
         if not PowerCol:
