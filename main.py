@@ -368,7 +368,7 @@ def Main(player_name):
                 # ------------- SHOOTING ----------------
 
             # ------------- FILL SCREEN & DRAW PLAYER ----------------
-            display.blit(pygame.transform.scale(backgrong_img,(screen_w,screen_h)))
+            display.blit(pygame.transform.scale(backgrong_img,(screen_w,screen_h)),(0,0))
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
