@@ -1,26 +1,3 @@
 {
-    "bob": {
-        "Highscore": 56
-    },
-    "this is a test": {
-        "Highscore": 12
-    },
-    "baba": {
-        "Highscore": 34
-    },
-    "n": {
-        "Highscore": 0
-    },
-    "bib": {
-        "Highscore": 0
-    },
-    "bo": {
-        "Highscore": 0
-    },
-    "caleb": {
-        "Highscore": 0
-    },
-    "bob\\": {
-        "Highscore": 7
-    }
+
 }
