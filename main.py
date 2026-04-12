@@ -120,7 +120,7 @@ def quit_game():
     time.sleep(3.2036733627319336)
     
     pygame.quit()
-    quit()
+    os._exit(0)
 
 win_popup = InfoBox(
     "You Win!",
@@ -223,8 +223,6 @@ def Main(player_name):
     try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
-                            print(f"Just Played:{start_sound}")
-                            print("The lenegh of the Sound was:", start_sound.get_length())
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     
@@ -270,7 +268,7 @@ def Main(player_name):
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = player.x, player.y
-    score = 7
+    score = 0
     r=100
     Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
     running = True
@@ -472,8 +470,6 @@ def Main(player_name):
                         try:
                             kill_sound.set_volume(1.0)
                             kill_sound.play()
-                            print(f"Just Played:{kill_sound}")
-                            print("The lenegh of the Sound was:", kill_sound.get_length())
                         except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
                         
@@ -484,7 +480,7 @@ def Main(player_name):
                         save_score(player_name, score)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s"))
-                        if str(abs(score))[0] == "4" or str(abs(score))[0] == "8":
+                        if str(abs(score))[0] %4 == 0:
                             powerups.append(powerup(screen_w,screen_h,"st"))
                         #     Spawn_e(2,enemies,Enemy)
                         if score % 2 ==0:
@@ -522,8 +518,6 @@ def start_buttons():
 try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
-                            print(f"Just Played:{start_sound}")
-                            print("The lenegh of the Sound was:", start_sound.get_length())
 except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     
