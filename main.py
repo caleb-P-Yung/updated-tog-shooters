@@ -75,8 +75,17 @@ else:
     kill_sound =None
     start_sound = None
     shutdown_sound = None
-background_img_path= resource_path("assets/Images/background.jpeg")
-backgrong_img=pygame.image.load(background_img_path)
+
+lvl1_img=pygame.image.load(resource_path("assets/Images/lvl1.jpeg"))
+lvl2_img=pygame.image.load(resource_path("assets/Images/lvl4.jpeg"))
+lvl3_img=pygame.image.load(resource_path("assets/Images/lvl3.jpeg"))
+lvl4_img=pygame.image.load(resource_path("assets/Images/lvl2.jpeg"))
+
+lvl4_inc = 0
+
+
+
+
 width, height = pygame.display.set_mode((900, 900)).get_size()
 display = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
 pygamepopup.init()
@@ -87,6 +96,7 @@ Ebullet_pygame = pygame.transform.scale(Ebullet_image, (50, 50))
 amount =1
 bullets = []
 Ebullets = []
+enemies = []
 bullet_speed = 2
 fire_cooldown = 300
 last_shot_time = 0
@@ -97,7 +107,7 @@ pygame.display.flip()
 # Load Player Image
 bob = pygame.image.load(player.image).convert_alpha()
 BIG_BOB = pygame.transform.scale(bob, (100, 100))
-
+lvl1_unlocked = False
 # ----------------- FUNCTIONS -----------------
 
 def randx(sx):
@@ -217,9 +227,23 @@ def shoot_enemy_bullet(enemy):
 
         Ebullets.append(new_bullet)
         enemy.last_shot_time = current_time
+def level1(lvl1_inc):
+    lvl1_inc +=1
+    if lvl1_inc == 1:
+        Spawn_e(5,enemies,Enemy)
+def level2(lvl2_inc):
+    lvl2_inc +=1
+    if lvl2_inc == 1:
+        Spawn_e(5,enemies,Enemy)
+def level3(lvl3_inc):
+    
+    if lvl3_inc == 1:
+        Spawn_e(5,enemies,Enemy)
+
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
+
     try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
@@ -259,24 +283,28 @@ def Main(player_name):
         # MULTIPLE ENEMIES
     time.sleep(4.814058780670166)
     # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
+    lvl1_inc = 0
+    lvl2_inc = 0
+    lvl3_inc = 0
     try:
                     background_sound.play(loops=-1)
                     
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
-    enemies = []
+    
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = player.x, player.y
-    score = 0
+    score = 19
     r=100
     Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
     running = True
     save_score(player_name,score)
     # =================== GAME LOOP =====================
     clock=pygame.time.Clock()
-    
+    e= Enemy(random.randint(0, 800), random.randint(0, 800))
     while running:
+            
             player.x, player.y = bobx,boby
             
             if Vsync:
@@ -366,7 +394,23 @@ def Main(player_name):
                 # ------------- SHOOTING ----------------
 
             # ------------- FILL SCREEN & DRAW PLAYER ----------------
-            display.blit(pygame.transform.scale(backgrong_img,(screen_w,screen_h)),(0,0))
+
+            if score < 20:
+                display.blit(pygame.transform.scale(lvl1_img,(screen_w,screen_h)),(0,0))
+            if score >= 20 and score < 40:
+                lvl1_inc +=1
+            
+                level1(lvl1_inc)
+                display.blit(pygame.transform.scale(lvl2_img,(screen_w,screen_h)),(0,0))
+            if score >= 40 and score < 60:
+                lvl2_inc +=1
+            
+                level2(lvl2_inc)
+                display.blit(pygame.transform.scale(lvl3_img,(screen_w,screen_h)),(0,0))
+            if score >= 60:
+                lvl3_inc +=1
+                level3(lvl3_inc)
+                display.blit(pygame.transform.scale(lvl4_img,(screen_w,screen_h)),(0,0))
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
@@ -480,7 +524,7 @@ def Main(player_name):
                         save_score(player_name, score)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s"))
-                        if str(abs(score))[0] %4 == 0:
+                        if score %4 == 0:
                             powerups.append(powerup(screen_w,screen_h,"st"))
                         #     Spawn_e(2,enemies,Enemy)
                         if score % 2 ==0:
