@@ -227,18 +227,10 @@ def shoot_enemy_bullet(enemy):
 
         Ebullets.append(new_bullet)
         enemy.last_shot_time = current_time
-def level1(lvl1_inc):
-    lvl1_inc +=1
-    if lvl1_inc == 1:
-        Spawn_e(5,enemies,Enemy)
-def level2(lvl2_inc):
-    lvl2_inc +=1
-    if lvl2_inc == 1:
-        Spawn_e(5,enemies,Enemy)
-def level3(lvl3_inc):
+
     
-    if lvl3_inc == 1:
-        Spawn_e(5,enemies,Enemy)
+
+
 
 # ----------------- MAIN GAME LOOP -----------------
 
@@ -303,6 +295,8 @@ def Main(player_name):
     # =================== GAME LOOP =====================
     clock=pygame.time.Clock()
     e= Enemy(random.randint(0, 800), random.randint(0, 800))
+    w=screen_w
+    h=screen_h
     while running:
             
             player.x, player.y = bobx,boby
@@ -399,18 +393,21 @@ def Main(player_name):
                 display.blit(pygame.transform.scale(lvl1_img,(screen_w,screen_h)),(0,0))
             if score >= 20 and score < 40:
                 lvl1_inc +=1
-            
-                level1(lvl1_inc)
-                display.blit(pygame.transform.scale(lvl2_img,(screen_w,screen_h)),(0,0))
+                if lvl1_inc == 1:
+                    Spawn_e(5,enemies,Enemy)
+                display.blit(pygame.transform.scale(lvl2_img,(w,h)),(0,0))
             if score >= 40 and score < 60:
                 lvl2_inc +=1
-            
-                level2(lvl2_inc)
-                display.blit(pygame.transform.scale(lvl3_img,(screen_w,screen_h)),(0,0))
+
+                if lvl2_inc == 1:
+                    Spawn_e(5,enemies,Enemy)
+                display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
             if score >= 60:
                 lvl3_inc +=1
-                level3(lvl3_inc)
-                display.blit(pygame.transform.scale(lvl4_img,(screen_w,screen_h)),(0,0))
+                if lvl3_inc == 1:
+                        Spawn_e(5,enemies,Enemy)
+                display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
+
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
