@@ -214,8 +214,8 @@ def shoot_enemy_bullet(enemy):
 
     if current_time - enemy.last_shot_time >= fire_cooldown:
         e = player  # target player
-        dx = e.x - enemy.x
-        dy = e.y - enemy.y
+        dx = e.x - (enemy.x + random.randint(-500, 500))
+        dy = e.y - (enemy.y + random.randint(-500, 500))
         dist = max((dx**2 + dy**2)**0.5, 0.001)
 
         new_bullet = EBullet(
@@ -261,6 +261,7 @@ def Main(player_name):
     StpowerCoolDown=1
     SppowerCoolDown=1
 
+    inventory = []
     powerupsoptions=[]
     powerups=[]
     spikes=[]
@@ -297,8 +298,9 @@ def Main(player_name):
     e= Enemy(random.randint(0, 800), random.randint(0, 800))
     w=screen_w
     h=screen_h
+    spin=0
     while running:
-            
+            spin+=1
             player.x, player.y = bobx,boby
             
             if Vsync:
@@ -384,7 +386,8 @@ def Main(player_name):
                     boby += player_speed
 
                 if left_click_held:
-                    shoot_bullet(enemies,bobx,boby)
+                    shoot_bullet(enemies,bobx-1,boby+1)
+                    
                 # ------------- SHOOTING ----------------
 
             # ------------- FILL SCREEN & DRAW PLAYER ----------------
@@ -416,19 +419,19 @@ def Main(player_name):
                 p.draw(display)
                 if p.type == "s":
                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        SpowerCol=True
+                        inventory.append(p)
                         powerups.remove(p)
                 if p.type == "st":
                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        isStunCol=True
+                        inventory.append(p)
                         powerups.remove(p)
                 if p.type == "h":
                     if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and player.health <100:
-                        player.health +=1
+                        inventory.append(p)
                         powerups.remove(p)
                 if p.type=="sp":
                      if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        isSpeedCol=True
+                        inventory.append(p)
                         powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
@@ -450,11 +453,11 @@ def Main(player_name):
             for bullet in bullets[:]:
                 bullet.x += bullet.vel_x
                 bullet.y += bullet.vel_y
-
-                display.blit(bullet_pygame, (bullet.x, bullet.y))
                 
+                display.blit(pygame.transform.rotate(bullet_pygame,spin), (bullet.x, bullet.y))
+
                 # Off screen delete
-                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > 1000:
+                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > screen_h:
                     bullets.remove(bullet)
                     continue
 
@@ -462,10 +465,11 @@ def Main(player_name):
                 for e in enemies[:]:
 
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
+                            
                             if SpowerCol:
                                 
                                 e.health -= 20
-                            
+                                bullets.remove(bullet)
                             else:
                                 e.health -= 10
                                 bullets.remove(bullet)
@@ -475,10 +479,10 @@ def Main(player_name):
                 bullet.x += bullet.vel_x
                 bullet.y += bullet.vel_y
 
-                display.blit(Ebullet_pygame, (bullet.x, bullet.y))
+                display.blit(pygame.transform.rotate(Ebullet_pygame,spin), (bullet.x, bullet.y))
                 
                 # Off screen delete
-                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > 1000:
+                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > screen_h:
                     # bullets.remove(bullet)
                     continue
 
@@ -493,7 +497,7 @@ def Main(player_name):
                     player.health -=0.05
 
 
-
+            for i in inventory:pass
                 
 
                 # Remove dead enemies
