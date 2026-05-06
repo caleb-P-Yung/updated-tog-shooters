@@ -234,7 +234,14 @@ def shoot_enemy_bullet(enemy):
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
-    
+    if not os.path.exists("./Settings.json"):
+        default_settings = {"V-sync": True}
+        with open("./Settings.json", "w") as f:
+            json.dump(default_settings, f, indent=4)
+    with open("./Settings.json", "r") as f:
+        settings = json.load(f)
+    Vsync = settings.get("V-sync", True)
+    print("V-sync is:", Vsync)
     try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
@@ -242,7 +249,6 @@ def Main(player_name):
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
     
 
-    Vsync = True
     fullscreen()
 
     isStunCol = False
@@ -289,7 +295,7 @@ def Main(player_name):
     bobx, boby = player.x, player.y
     score = 19
     r=100
-    Spawn(3,spikes,screen_w,screen_h,r,bobx,boby)
+    Spawn(3,spikes,screen_w,screen_h-290,r,bobx,boby)
     running = True
     save_score(player_name,score)
     # =================== GAME LOOP =====================
@@ -299,7 +305,13 @@ def Main(player_name):
     h=screen_h
     spin=0
     while running:
-            
+            item_images = {
+    "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
+    "st": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/stun.png")).convert_alpha(), (50, 50)),
+    "h": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/health.png")).convert_alpha(), (50, 50)),
+    "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
+}
+            isStunCol = True
             spin+=1
             player.x, player.y = bobx,boby
             
@@ -313,9 +325,9 @@ def Main(player_name):
                     SpowerCol = False
             if isStunCol:
                 StpowerCoolDown+=1
-                if StpowerCoolDown >= 1000:
-                    StpowerCoolDown = 0
-                    isStunCol = False
+                # if StpowerCoolDown >= 1000:
+                #     StpowerCoolDown = 0
+                #     isStunCol = False
             if isSpeedCol:
                 SppowerCoolDown+=1
                 player_speed = player_speed+player_speed_temp
@@ -376,12 +388,12 @@ def Main(player_name):
                 if keys[pygame.K_w]:
                     boby -= player_speed
                 if keys[pygame.K_w] and boby <= 100:
-                    boby=screen_h-109
+                    boby=screen_h-290
                     boby -= player_speed
 
                 if keys[pygame.K_s]:
                     boby += player_speed
-                if keys[pygame.K_s] and boby >= screen_h-110:
+                if keys[pygame.K_s] and boby >= screen_h-290:
                     boby=99
                     boby += player_speed
 
@@ -438,6 +450,17 @@ def Main(player_name):
             slot8y= main_rect.y + 10
             slot9x= main_rect.x + 10 + 8*rect_h
             slot9y= main_rect.y + 10
+            slots = [
+    (slot1x, slot1y),
+    (slot2x, slot2y),
+    (slot3x, slot3y),
+    (slot4x, slot4y),
+    (slot5x, slot5y),
+    (slot6x, slot6y),
+    (slot7x, slot7y),
+    (slot8x, slot8y),
+    (slot9x, slot9y),
+]
             slot1= pygame.Rect(slot1x, slot1y, rect_h-20, rect_h-20)
             slot2= pygame.Rect(slot2x, slot2y, rect_h-20, rect_h-20)
             slot3= pygame.Rect(slot3x, slot3y, rect_h-20, rect_h-20)
@@ -476,10 +499,10 @@ def Main(player_name):
                         powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
-            for e in enemies[:]:shoot_enemy_bullet(enemy=e)
+            for e in enemies[:]: 
+                if not isStunCol:shoot_enemy_bullet(enemy=e)
             for e in enemies[:]:
                 e.move_toward(bobx, boby,isStunCol)
-                shoot_enemy_bullet(enemy=e)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
                 # Damage player on touch
@@ -538,10 +561,16 @@ def Main(player_name):
                     player.health -=0.05
 
 
-            for i in inventory:pass
-                
+            for index, item in enumerate(inventory):
+                if index >= len(slots):
+                    break  # don't overflow hotbar
 
-                # Remove dead enemies
+                if item is None:
+                    continue
+
+                if item.type in item_images:
+                    display.blit(item_images[item.type], slots[index])
+                            # Remove dead enemies
             for e in enemies[:]:
                     for s in spikes:
                         s.draw(display)
@@ -570,7 +599,7 @@ def Main(player_name):
                             powerups.append(powerup(screen_w,screen_h,"st"))
                         #     Spawn_e(2,enemies,Enemy)
                         if score % 2 ==0:
-                            Spawn(1,spikes,screen_w,screen_h,r,bobx,boby)
+                            Spawn(1,spikes,screen_w,screen_h-290,r,bobx,boby)
                             
                         Spawn_e(2,enemies,Enemy)
                         # elif score < end_score:
