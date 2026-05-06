@@ -52,7 +52,11 @@ def resource_path(path):
 
     return os.path.join(base_path, path)
 pygame.font.init()
-Comic_sans = pygame.font.SysFont('Pacifico', 30)
+if os.system == "Windows":
+    Comic_sans = pygame.font.SysFont('Pacificoregular', 30)
+else:
+      Comic_sans = pygame.font.SysFont('Pacifico', 30)
+
 pygame.init()
 sound_enabled = True
 try:
@@ -235,12 +239,13 @@ def shoot_enemy_bullet(enemy):
 
 def Main(player_name):
     if not os.path.exists("./Settings.json"):
-        default_settings = {"V-sync": True}
+        default_settings = {"V-sync": True,"Old Potions":False}
         with open("./Settings.json", "w") as f:
             json.dump(default_settings, f, indent=4)
     with open("./Settings.json", "r") as f:
         settings = json.load(f)
     Vsync = settings.get("V-sync", True)
+    doOldPotions = settings.get("Old Potions", False)
     print("V-sync is:", Vsync)
     try:
                             start_sound.set_volume(1.0)
@@ -387,13 +392,18 @@ def Main(player_name):
 
                 if keys[pygame.K_w]:
                     boby -= player_speed
-                if keys[pygame.K_w] and boby <= 100:
+                if keys[pygame.K_w] and boby <= 100 and not doOldPotions:
                     boby=screen_h-290
                     boby -= player_speed
-
+                elif  keys[pygame.K_w] and boby <= 100 and doOldPotions:
+                    boby=screen_h-109
+                    boby -= player_speed
                 if keys[pygame.K_s]:
                     boby += player_speed
-                if keys[pygame.K_s] and boby >= screen_h-290:
+                if keys[pygame.K_s] and boby >= screen_h-290 and not doOldPotions:
+                    boby=99
+                    boby += player_speed
+                if keys[pygame.K_s] and boby >= screen_h-110 and doOldPotions:
                     boby=99
                     boby += player_speed
 
@@ -427,75 +437,81 @@ def Main(player_name):
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
             display.blit(BIG_BOB, (bobx, boby))
-            rect_w = w*0.5
-            rect_h=100
-            main_rect = pygame.Rect(0, 0, rect_w, rect_h)
-            main_rect.center = (w/2, h*0.9)
-            pygame.draw.rect(display, (128, 128, 128), main_rect)
-            slot1x= main_rect.x + 10
-            slot1y= main_rect.y + 10
-            slot2x= main_rect.x + 10 + rect_h
-            slot2y= main_rect.y + 10
-            slot3x= main_rect.x + 10 + 2*rect_h
-            slot3y= main_rect.y + 10
-            slot4x= main_rect.x + 10 + 3*rect_h
-            slot4y= main_rect.y + 10
-            slot5x= main_rect.x + 10 + 4*rect_h
-            slot5y= main_rect.y + 10
-            slot6x= main_rect.x + 10 + 5*rect_h
-            slot6y= main_rect.y + 10
-            slot7x= main_rect.x + 10 + 6*rect_h
-            slot7y= main_rect.y + 10
-            slot8x= main_rect.x + 10 + 7*rect_h
-            slot8y= main_rect.y + 10
-            slot9x= main_rect.x + 10 + 8*rect_h
-            slot9y= main_rect.y + 10
-            slots = [
-    (slot1x, slot1y),
-    (slot2x, slot2y),
-    (slot3x, slot3y),
-    (slot4x, slot4y),
-    (slot5x, slot5y),
-    (slot6x, slot6y),
-    (slot7x, slot7y),
-    (slot8x, slot8y),
-    (slot9x, slot9y),
-]
-            slot1= pygame.Rect(slot1x, slot1y, rect_h-20, rect_h-20)
-            slot2= pygame.Rect(slot2x, slot2y, rect_h-20, rect_h-20)
-            slot3= pygame.Rect(slot3x, slot3y, rect_h-20, rect_h-20)
-            slot4= pygame.Rect(slot4x, slot4y, rect_h-20, rect_h-20)
-            slot5= pygame.Rect(slot5x, slot5y, rect_h-20, rect_h-20)
-            slot6= pygame.Rect(slot6x, slot6y, rect_h-20, rect_h-20)
-            slot7= pygame.Rect(slot7x, slot7y, rect_h-20, rect_h-20)
-            slot8= pygame.Rect(slot8x, slot8y, rect_h-20, rect_h-20)
-            slot9= pygame.Rect(slot9x, slot9y, rect_h-20, rect_h-20)
-            pygame.draw.rect(display, (255, 255, 255), slot1)
-            pygame.draw.rect(display, (255, 255, 255), slot2)
-            pygame.draw.rect(display, (255, 255, 255), slot3)
-            pygame.draw.rect(display, (255, 255, 255), slot4)
-            pygame.draw.rect(display, (255, 255, 255), slot5)
-            pygame.draw.rect(display, (255, 255, 255), slot6)
-            pygame.draw.rect(display, (255, 255, 255), slot7)
-            pygame.draw.rect(display, (255, 255, 255), slot8)
-            pygame.draw.rect(display, (255, 255, 255), slot9)
+            if not doOldPotions:
+                rect_w = w*0.5
+                rect_h=100
+                main_rect = pygame.Rect(0, 0, rect_w, rect_h)
+                main_rect.center = (w/2, h*0.9)
+                pygame.draw.rect(display, (128, 128, 128), main_rect)
+                slot1x= main_rect.x + 10
+                slot1y= main_rect.y + 10
+                slot2x= main_rect.x + 10 + rect_h
+                slot2y= main_rect.y + 10
+                slot3x= main_rect.x + 10 + 2*rect_h
+                slot3y= main_rect.y + 10
+                slot4x= main_rect.x + 10 + 3*rect_h
+                slot4y= main_rect.y + 10
+                slot5x= main_rect.x + 10 + 4*rect_h
+                slot5y= main_rect.y + 10
+                slot6x= main_rect.x + 10 + 5*rect_h
+                slot6y= main_rect.y + 10
+                slot7x= main_rect.x + 10 + 6*rect_h
+                slot7y= main_rect.y + 10
+                slot8x= main_rect.x + 10 + 7*rect_h
+                slot8y= main_rect.y + 10
+                slot9x= main_rect.x + 10 + 8*rect_h
+                slot9y= main_rect.y + 10
+                slots = [
+        (slot1x, slot1y),
+        (slot2x, slot2y),
+        (slot3x, slot3y),
+        (slot4x, slot4y),
+        (slot5x, slot5y),
+        (slot6x, slot6y),
+        (slot7x, slot7y),
+        (slot8x, slot8y),
+        (slot9x, slot9y),
+    ]
+                slot1= pygame.Rect(slot1x, slot1y, rect_h-20, rect_h-20)
+                slot2= pygame.Rect(slot2x, slot2y, rect_h-20, rect_h-20)
+                slot3= pygame.Rect(slot3x, slot3y, rect_h-20, rect_h-20)
+                slot4= pygame.Rect(slot4x, slot4y, rect_h-20, rect_h-20)
+                slot5= pygame.Rect(slot5x, slot5y, rect_h-20, rect_h-20)
+                slot6= pygame.Rect(slot6x, slot6y, rect_h-20, rect_h-20)
+                slot7= pygame.Rect(slot7x, slot7y, rect_h-20, rect_h-20)
+                slot8= pygame.Rect(slot8x, slot8y, rect_h-20, rect_h-20)
+                slot9= pygame.Rect(slot9x, slot9y, rect_h-20, rect_h-20)
+                pygame.draw.rect(display, (255, 255, 255), slot1)
+                pygame.draw.rect(display, (255, 255, 255), slot2)
+                pygame.draw.rect(display, (255, 255, 255), slot3)
+                pygame.draw.rect(display, (255, 255, 255), slot4)
+                pygame.draw.rect(display, (255, 255, 255), slot5)
+                pygame.draw.rect(display, (255, 255, 255), slot6)
+                pygame.draw.rect(display, (255, 255, 255), slot7)
+                pygame.draw.rect(display, (255, 255, 255), slot8)
+                pygame.draw.rect(display, (255, 255, 255), slot9)
             for p in powerups:
                 p.draw(display)
                 if p.type == "s":
                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        inventory.append(p)
-                        powerups.remove(p)
-                if p.type == "st":
-                    if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        inventory.append(p)
+                        if not doOldPotions:
+                            inventory.append(p)
+                        else:
+                            SpowerCol = True
                         powerups.remove(p)
                 if p.type == "h":
                     if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and player.health <100:
-                        inventory.append(p)
+                        if not doOldPotions:
+                            inventory.append(p)
+                        else:
+                            player.health += 20
                         powerups.remove(p)
                 if p.type=="sp":
                      if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                        inventory.append(p)
+                        if not doOldPotions:
+                            inventory.append(p)
+                        else:
+                            isSpeedCol = True
                         powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
