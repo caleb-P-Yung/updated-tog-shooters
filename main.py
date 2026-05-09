@@ -239,13 +239,14 @@ def shoot_enemy_bullet(enemy):
 
 def Main(player_name):
     if not os.path.exists("./Settings.json"):
-        default_settings = {"V-sync": True,"Old Potions":False}
+        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False}
         with open("./Settings.json", "w") as f:
             json.dump(default_settings, f, indent=4)
     with open("./Settings.json", "r") as f:
         settings = json.load(f)
     Vsync = settings.get("V-sync", True)
-    doOldPotions = settings.get("Old Potions", False)
+    doOldPotions = settings.get("Old Potions", True)
+    testing = settings.get("Testing", False)
     print("V-sync is:", Vsync)
     try:
                             start_sound.set_volume(1.0)
@@ -255,11 +256,12 @@ def Main(player_name):
     
 
     fullscreen()
-
+    
     isStunCol = False
     SpowerCol= False
     isSpeedCol=False
 
+    right_click_held = False
     game_won = False
     popup_shown = False
     game_lost = False
@@ -316,7 +318,6 @@ def Main(player_name):
     "h": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/health.png")).convert_alpha(), (50, 50)),
     "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
 }
-            isStunCol = True
             spin+=1
             player.x, player.y = bobx,boby
             
@@ -330,9 +331,12 @@ def Main(player_name):
                     SpowerCol = False
             if isStunCol:
                 StpowerCoolDown+=1
-                # if StpowerCoolDown >= 1000:
-                #     StpowerCoolDown = 0
-                #     isStunCol = False
+                if not testing:
+                    if StpowerCoolDown >= 1000:
+                        StpowerCoolDown = 0
+                        isStunCol = False
+                if testing:
+                    isStunCol = True
             if isSpeedCol:
                 SppowerCoolDown+=1
                 player_speed = player_speed+player_speed_temp
@@ -366,6 +370,11 @@ def Main(player_name):
                         left_click_held = True
                     if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                         left_click_held = False
+
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
+                        right_click_held = True
+                    if event.type == pygame.MOUSEBUTTONUP and event.button == 2:
+                        right_click_held = False
                         
 
 
@@ -409,7 +418,27 @@ def Main(player_name):
 
                 if left_click_held:
                     shoot_bullet(enemies,bobx-1,boby+1)
-                    
+                if right_click_held:
+                    for i in range(len(inventory)):
+                        if inventory[0].type == "h":
+                            player.health += 20
+                            inventory[i] == ""
+                            break
+                        elif inventory[0].type == "s":
+                            SpowerCol = True
+                            inventory[0] == ""
+                            break
+                        elif inventory[0].type == "st":
+                            isStunCol = True
+                            inventory[0] == ""
+                            break
+                        elif inventory[0].type == "sp":
+                            isSpeedCol = True
+                            inventory[0] == ""
+                            break
+                        elif inventory[i] == "":
+                            inventory[i] = inventory[i+1] 
+
                 # ------------- SHOOTING ----------------
 
             # ------------- FILL SCREEN & DRAW PLAYER ----------------
