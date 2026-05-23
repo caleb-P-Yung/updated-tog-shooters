@@ -281,10 +281,10 @@ def Main(player_name):
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
     powerupsoptions.append("s")
-    powerups.append(powerup(screen_w,screen_h,"h"))
-    powerups.append(powerup(screen_w,screen_h,"h"))
-    powerups.append(powerup(screen_w,screen_h,"h"))
-    powerups.append(powerup(screen_w,screen_h,"sp"))
+    powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
+    powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
+    powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
+    powerups.append(powerup(screen_w,screen_h,"sp",doOldPotions))
         # MULTIPLE ENEMIES
     time.sleep(4.814058780670166)
     # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
@@ -335,8 +335,8 @@ def Main(player_name):
                     if StpowerCoolDown >= 1000:
                         StpowerCoolDown = 0
                         isStunCol = False
-                if testing:
-                    isStunCol = True
+            if testing:
+                isStunCol = True
             if isSpeedCol:
                 SppowerCoolDown+=1
                 player_speed = player_speed+player_speed_temp
@@ -370,11 +370,42 @@ def Main(player_name):
                         left_click_held = True
                     if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                         left_click_held = False
+                    if event.type == pygame.KEYDOWN:
 
-                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 2:
-                        right_click_held = True
-                    if event.type == pygame.MOUSEBUTTONUP and event.button == 2:
-                        right_click_held = False
+                        if event.key == pygame.K_u:
+
+                            for i in range(len(inventory)):
+
+                                if inventory[i] is None:
+                                    continue
+
+                                if inventory[i].type == "h" and player.health <= 80:
+                                    player.health += 20
+                                    inventory[i] = None
+                                    break
+
+                                elif inventory[i].type == "s":
+                                    SpowerCol = True
+                                    inventory[i] = None
+                                    break
+
+                                elif inventory[i].type == "st":
+                                    isStunCol = True
+                                    inventory[i] = None
+                                    break
+
+                                elif inventory[i].type == "sp":
+                                    isSpeedCol = True
+                                    inventory[i] = None
+                                    break
+
+                            # Compact inventory
+                            inventory = [item for item in inventory if item is not None]
+
+                            while len(inventory) < len(slots):
+                                inventory.append(None)
+
+
                         
 
 
@@ -418,26 +449,7 @@ def Main(player_name):
 
                 if left_click_held:
                     shoot_bullet(enemies,bobx-1,boby+1)
-                if right_click_held:
-                    for i in range(len(inventory)):
-                        if inventory[0].type == "h":
-                            player.health += 20
-                            inventory[i] == ""
-                            break
-                        elif inventory[0].type == "s":
-                            SpowerCol = True
-                            inventory[0] == ""
-                            break
-                        elif inventory[0].type == "st":
-                            isStunCol = True
-                            inventory[0] == ""
-                            break
-                        elif inventory[0].type == "sp":
-                            isSpeedCol = True
-                            inventory[0] == ""
-                            break
-                        elif inventory[i] == "":
-                            inventory[i] = inventory[i+1] 
+                
 
                 # ------------- SHOOTING ----------------
 
@@ -448,18 +460,18 @@ def Main(player_name):
             if score >= 20 and score < 40:
                 lvl1_inc +=1
                 if lvl1_inc == 1:
-                    Spawn_e(5,enemies,Enemy)
+                    Spawn_e(3,enemies,Enemy)
                 display.blit(pygame.transform.scale(lvl2_img,(w,h)),(0,0))
             if score >= 40 and score < 60:
                 lvl2_inc +=1
 
                 if lvl2_inc == 1:
-                    Spawn_e(5,enemies,Enemy)
+                    Spawn_e(3,enemies,Enemy)
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
             if score >= 60:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
-                        Spawn_e(5,enemies,Enemy)
+                        Spawn_e(3,enemies,Enemy)
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
 
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
@@ -544,7 +556,7 @@ def Main(player_name):
                         powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
-            for e in enemies[:]: 
+            for e in enemies[:]:                                    
                 if not isStunCol:shoot_enemy_bullet(enemy=e)
             for e in enemies[:]:
                 e.move_toward(bobx, boby,isStunCol)
@@ -639,9 +651,9 @@ def Main(player_name):
                         
                         save_score(player_name, score)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
-                            powerups.append(powerup(screen_w,screen_h,"s"))
+                            powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
                         if score %4 == 0:
-                            powerups.append(powerup(screen_w,screen_h,"st"))
+                            powerups.append(powerup(screen_w,screen_h,"st",doOldPotions))
                         #     Spawn_e(2,enemies,Enemy)
                         if score % 2 ==0:
                             Spawn(1,spikes,screen_w,screen_h-290,r,bobx,boby)

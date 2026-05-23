@@ -7,10 +7,14 @@ class powerup:
             base_path = os.path.abspath("./")
 
         return os.path.join(base_path, path)
-    def __init__(self, maxx, maxy,type):
-        self.x = random.randint(0+10, maxx-10)
-        self.y = random.randint(0+10, maxy-100)
-        self.types = types=["st","s"]
+    def __init__(self, maxx, maxy,type,potions):
+        if potions:
+            self.x = random.randint(0+10, maxx-10)
+            self.y = random.randint(0+10, maxy-100)
+        else:
+            self.x = random.randint(0+10, maxx-10)
+            self.y = random.randint(0+10, maxy-290)
+        self.types = types=["st","s","h","sp"]
         self.type=type
     def gettype(self):
         for i in self.types:return i
