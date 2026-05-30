@@ -84,8 +84,8 @@ lvl1_img=pygame.image.load(resource_path("assets/Images/lvl1.jpeg"))
 lvl2_img=pygame.image.load(resource_path("assets/Images/lvl4.jpeg"))
 lvl3_img=pygame.image.load(resource_path("assets/Images/lvl3.jpeg"))
 lvl4_img=pygame.image.load(resource_path("assets/Images/lvl2.jpeg"))
+cat=pygame.image.load(resource_path("assets/Images/cat.JPG"))
 
-lvl4_inc = 0
 
 
 
@@ -101,7 +101,7 @@ amount =1
 bullets = []
 Ebullets = []
 enemies = []
-bullet_speed = 2
+bullet_speed = 1.5
 fire_cooldown = 300
 last_shot_time = 0
 menu_manager = MenuManager(display)
@@ -291,6 +291,7 @@ def Main(player_name):
     lvl1_inc = 0
     lvl2_inc = 0
     lvl3_inc = 0
+    lvl4_inc = 0
     try:
                     background_sound.play(loops=-1)
                     
@@ -300,7 +301,7 @@ def Main(player_name):
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = player.x, player.y
-    score = 19
+    score = 79
     r=100
     Spawn(3,spikes,screen_w,screen_h-290,r,bobx,boby)
     running = True
@@ -311,7 +312,9 @@ def Main(player_name):
     w=screen_w
     h=screen_h
     spin=0
+    Ememy_cooldown=0
     while running:
+            Ememy_cooldown+=1
             item_images = {
     "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
     "st": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/stun.png")).convert_alpha(), (50, 50)),
@@ -335,8 +338,7 @@ def Main(player_name):
                     if StpowerCoolDown >= 1000:
                         StpowerCoolDown = 0
                         isStunCol = False
-            if testing:
-                isStunCol = True
+
             if isSpeedCol:
                 SppowerCoolDown+=1
                 player_speed = player_speed+player_speed_temp
@@ -468,15 +470,18 @@ def Main(player_name):
                 if lvl2_inc == 1:
                     Spawn_e(3,enemies,Enemy)
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
-            if score >= 60:
+            if score >= 60 and score < 80:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
                         Spawn_e(3,enemies,Enemy)
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
+            if score >= 80:
+                lvl4_inc +=1
+                if lvl4_inc == 1:
+                        Spawn_e(30,enemies,Enemy)
+                display.blit(pygame.transform.scale(cat,(w,h)),(0,0))
 
-            display.blit(text, text.get_rect(center=(screen_w/2, 10)))
-            display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
-            display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
+            
             display.blit(BIG_BOB, (bobx, boby))
             if not doOldPotions:
                 rect_w = w*0.5
@@ -554,12 +559,19 @@ def Main(player_name):
                         else:
                             isSpeedCol = True
                         powerups.remove(p)
+                if p.type=="st":
+                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                        if not doOldPotions:
+                            inventory.append(p)
+                        else:
+                            isSpeedCol = True
+                        powerups.remove(p)
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
-                if not isStunCol:shoot_enemy_bullet(enemy=e)
+                if not isStunCol or not testing and Ememy_cooldown%2==0:shoot_enemy_bullet(enemy=e)
             for e in enemies[:]:
-                e.move_toward(bobx, boby,isStunCol)
+                e.move_toward(bobx, boby,isStunCol,testing)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
                 # Damage player on touch
@@ -675,8 +687,13 @@ def Main(player_name):
             menu_manager.display()        
 
         # ------------- HEALTH BARS ----------------
-            draw_health_bar(display, bobx-10, boby-20, player.health, 100)
-                
+            if doOldPotions:
+                draw_health_bar(display, bobx-10, boby-20, player.health, 100)
+            elif not doOldPotions:
+                draw_health_bar(display, 150, screen_h -150, player.health, 100)
+            display.blit(text, text.get_rect(center=(screen_w/2, 10)))
+            display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
+            display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
             pygame.display.flip()
             
 
