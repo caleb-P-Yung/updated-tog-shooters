@@ -21,8 +21,8 @@ class Enemy:
         )
         self.bullets = []
 
-    def move_toward(self, target_x, target_y, PowerCol,test):
-        if not PowerCol or not test:
+    def move_toward(self, target_x, target_y, PowerCol,test,pause):
+        if (not PowerCol or not test) and not pause:
             dx = target_x - self.x
             dy = target_y - self.y
             dist = (dx*dx + dy*dy) ** 0.5

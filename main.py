@@ -101,8 +101,8 @@ amount =1
 bullets = []
 Ebullets = []
 enemies = []
-bullet_speed = 1.5
-fire_cooldown = 300
+bullet_speed = 7
+fire_cooldown = 1000
 last_shot_time = 0
 menu_manager = MenuManager(display)
 start_menu = pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
@@ -216,7 +216,7 @@ def shoot_bullet(enemies,bobx,boby):
 def shoot_enemy_bullet(enemy):
     current_time = pygame.time.get_ticks()
 
-    if current_time - enemy.last_shot_time >= fire_cooldown:
+    if current_time - enemy.last_shot_time >= fire_cooldown :
         e = player  # target player
         dx = e.x - (enemy.x + random.randint(-500, 500))
         dy = e.y - (enemy.y + random.randint(-500, 500))
@@ -232,12 +232,17 @@ def shoot_enemy_bullet(enemy):
         Ebullets.append(new_bullet)
         enemy.last_shot_time = current_time
 
-
-
+    
 
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
+    
+    paused = False
+    paused_menu = pygame_menu.Menu('Paused', width, height, theme=pygame_menu.themes.THEME_BLUE)
+    
+    paused_menu.add.button('bob')
+    paused_menu.add.button('Resume', onselect=pygame_menu.events.CLOSE)
     if not os.path.exists("./Settings.json"):
         default_settings = {"V-sync": True,"Old Potions":True,"Testing":False}
         with open("./Settings.json", "w") as f:
@@ -266,7 +271,7 @@ def Main(player_name):
     popup_shown = False
     game_lost = False
 
-    player_speed = 1
+    player_speed = 2
     player_speed_temp=0.25
 
     SpowerCoolDown=1
@@ -301,7 +306,7 @@ def Main(player_name):
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = player.x, player.y
-    score = 79
+    score = 0
     r=100
     Spawn(3,spikes,screen_w,screen_h-290,r,bobx,boby)
     running = True
@@ -314,6 +319,7 @@ def Main(player_name):
     spin=0
     Ememy_cooldown=0
     while running:
+            clock.tick()
             Ememy_cooldown+=1
             item_images = {
     "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
@@ -341,15 +347,17 @@ def Main(player_name):
 
             if isSpeedCol:
                 SppowerCoolDown+=1
-                player_speed = player_speed+player_speed_temp
+                if SppowerCoolDown == 1:
+                    player_speed = player_speed+player_speed_temp
                 if SppowerCoolDown >= 1000:
+                    player_speed = player_speed-player_speed_temp
                     SppowerCoolDown = 0
                     isSpeedCol = False
             left_click_held = False
             highscore=get_score(player_name)
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
-            disFPS= f"FPS:{math.ceil(clock.get_fps())}\n Strengh powered:{SpowerCol} Stun powered:{isStunCol}"
+            disFPS= f"FPS:{math.ceil(clock.get_fps())}"
             text2=Comic_sans.render(string2, False, (0, 0, 0))
             text = Comic_sans.render(string, False, (0, 0, 0))
             disFPST = Comic_sans.render(disFPS, False, (0, 0, 0))
@@ -364,6 +372,12 @@ def Main(player_name):
                     if event.type == pygame.QUIT:
                         
                         running = False
+                        paused_menu.mainloop(display)
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        paused = True
+                        
+                        paused_menu.mainloop(display)
+                        paused_menu.set_onclose(paused=False)
                     if event.type == pygame.MOUSEMOTION:
                         menu_manager.motion(event.pos)
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -374,7 +388,7 @@ def Main(player_name):
                         left_click_held = False
                     if event.type == pygame.KEYDOWN:
 
-                        if event.key == pygame.K_u:
+                        if event.key == pygame.K_u and not paused:
 
                             for i in range(len(inventory)):
 
@@ -413,12 +427,7 @@ def Main(player_name):
 
 
             # ------------- PLAYER MOVEMENT LIMITS ----------------
-            
-            if keys[pygame.K_ESCAPE]:
-                    quit_game()
-                    pygame.mixer.stop()
-                    running = False
-            if not menu_manager.active_menu and not game_lost:
+            if not menu_manager.active_menu and not game_lost and not paused:
 
                 if keys[pygame.K_a] and bobx > 0:
                     bobx -= player_speed
@@ -569,9 +578,9 @@ def Main(player_name):
 
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
-                if not isStunCol or not testing and Ememy_cooldown%2==0:shoot_enemy_bullet(enemy=e)
+                if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
             for e in enemies[:]:
-                e.move_toward(bobx, boby,isStunCol,testing)
+                e.move_toward(bobx, boby,isStunCol,testing,paused)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
                 # Damage player on touch
@@ -609,8 +618,9 @@ def Main(player_name):
                                 break
             
             for bullet in Ebullets[:]:
-                bullet.x += bullet.vel_x
-                bullet.y += bullet.vel_y
+                if not paused:
+                    bullet.x += bullet.vel_x
+                    bullet.y += bullet.vel_y
 
                 display.blit(pygame.transform.rotate(Ebullet_pygame,spin), (bullet.x, bullet.y))
                 
