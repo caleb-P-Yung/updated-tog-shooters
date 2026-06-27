@@ -69,6 +69,7 @@ end_score=4
 
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"), 100, 100)
 if sound_enabled:
+    warning_sound = pygame.mixer.Sound(resource_path("assets/sounds/warning.mp3"))
     background_sound = pygame.mixer.Sound(resource_path("assets/sounds/title.wav"))
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
     start_sound = pygame.mixer.Sound(resource_path("assets/sounds/Startup.wav"))
@@ -231,18 +232,17 @@ def shoot_enemy_bullet(enemy):
 
         Ebullets.append(new_bullet)
         enemy.last_shot_time = current_time
-
-    
+def close_menu():
+    paused_menu.disable()
 
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
     
     paused = False
+    global paused_menu
     paused_menu = pygame_menu.Menu('Paused', width, height, theme=pygame_menu.themes.THEME_BLUE)
-    
-    paused_menu.add.button('bob')
-    paused_menu.add.button('Resume', onselect=pygame_menu.events.CLOSE)
+   
     if not os.path.exists("./Settings.json"):
         default_settings = {"V-sync": True,"Old Potions":True,"Testing":False}
         with open("./Settings.json", "w") as f:
@@ -266,7 +266,6 @@ def Main(player_name):
     SpowerCol= False
     isSpeedCol=False
 
-    right_click_held = False
     game_won = False
     popup_shown = False
     game_lost = False
@@ -282,6 +281,7 @@ def Main(player_name):
     powerupsoptions=[]
     powerups=[]
     spikes=[]
+    boss=[]
 
     screen_w, screen_h = display.get_size()
     # spikes.append(spike(randx(screen_w),randy(screen_h),100))
@@ -297,8 +297,12 @@ def Main(player_name):
     lvl2_inc = 0
     lvl3_inc = 0
     lvl4_inc = 0
+    score = 19
+
+    r=100
     try:
-                    background_sound.play(loops=-1)
+                    # background_sound.play(loops=-1)
+                    pass
                     
     except AttributeError:
                             print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
@@ -306,8 +310,11 @@ def Main(player_name):
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
     bobx, boby = player.x, player.y
-    score = 0
-    r=100
+    
+    paused_menu.add.label(f"Score: {score}","score")
+    paused_menu.add.label("")
+    paused_menu.add.button('Resume',close_menu)
+    paused_menu.add.button('Quit Game',quit_game)
     Spawn(3,spikes,screen_w,screen_h-290,r,bobx,boby)
     running = True
     save_score(player_name,score)
@@ -318,9 +325,13 @@ def Main(player_name):
     h=screen_h
     spin=0
     Ememy_cooldown=0
+    boss_cooldown=0
     while running:
+            label = paused_menu.get_widget("score")
+            label.set_title(f"Score: {score}")
             clock.tick()
             Ememy_cooldown+=1
+            boss_cooldown+=0.5
             item_images = {
     "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
     "st": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/stun.png")).convert_alpha(), (50, 50)),
@@ -355,6 +366,10 @@ def Main(player_name):
                     isSpeedCol = False
             left_click_held = False
             highscore=get_score(player_name)
+            boss_string="WARNING John Cena is coming!"
+            boss_text=Comic_sans.render(boss_string, False, (255, 0, 0))
+            boss_string2="WARNING John Cena is HERE!"
+            boss_text2=Comic_sans.render(boss_string, False, (255, 0, 0))
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
             disFPS= f"FPS:{math.ceil(clock.get_fps())}"
@@ -375,9 +390,9 @@ def Main(player_name):
                         paused_menu.mainloop(display)
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         paused = True
-                        
+                        paused_menu.enable()
                         paused_menu.mainloop(display)
-                        paused_menu.set_onclose(paused=False)
+                        paused = False
                     if event.type == pygame.MOUSEMOTION:
                         menu_manager.motion(event.pos)
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -471,23 +486,23 @@ def Main(player_name):
             if score >= 20 and score < 40:
                 lvl1_inc +=1
                 if lvl1_inc == 1:
-                    Spawn_e(3,enemies,Enemy)
+                    boss.append(Enemy(random.randint(0, 800), random.randint(0, 800),0.6,100,"boss"))
                 display.blit(pygame.transform.scale(lvl2_img,(w,h)),(0,0))
             if score >= 40 and score < 60:
                 lvl2_inc +=1
 
                 if lvl2_inc == 1:
-                    Spawn_e(3,enemies,Enemy)
+                    boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
             if score >= 60 and score < 80:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
-                        Spawn_e(3,enemies,Enemy)
+                        boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
             if score >= 80:
                 lvl4_inc +=1
                 if lvl4_inc == 1:
-                        Spawn_e(30,enemies,Enemy)
+                        boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(cat,(w,h)),(0,0))
 
             
@@ -579,7 +594,22 @@ def Main(player_name):
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
                 if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
+            
+            for e in enemies[:]:                                    
+                if (not isStunCol or not testing and boss_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
+
             for e in enemies[:]:
+                e.move_toward(bobx, boby,isStunCol,testing,paused)
+                e.draw(display)
+                draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
+                # Damage player on touch
+                if abs(e.x - bobx) < 30 and abs(e.y - boby) < 30:
+                    player.health -= 0.05
+
+                # Player dead
+                if player.health <= 0:
+                    game_lost = True
+            for e in boss[:]:
                 e.move_toward(bobx, boby,isStunCol,testing,paused)
                 e.draw(display)
                 draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
@@ -592,6 +622,37 @@ def Main(player_name):
                     game_lost = True
 
             # ------------- BULLET MOVEMENT + ENEMY COLLISION ----------------
+            for e in boss[:]:
+                    for s in spikes:
+                        s.draw(display)
+                        if (s.x - r <= e.x <= s.x + r) and (s.y - r <= e.y <= s.y + r):
+                            if e.health <100:
+                                e.health+=0.05
+                    if e.health <= 0:
+                        boss.remove(e)
+                        score += 10
+                        
+                        
+                        try:
+                            kill_sound.set_volume(1.0)
+                            kill_sound.play()
+                        except AttributeError:
+                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+                        
+
+                        
+                        # Respawn new enemy
+                        
+                        save_score(player_name, score)
+                        if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
+                            powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
+                        if score %4 == 0:
+                            powerups.append(powerup(screen_w,screen_h,"st",doOldPotions))
+                        #     Spawn_e(2,enemies,Enemy)
+                        if score % 2 ==0:
+                            Spawn(1,spikes,screen_w,screen_h-290,r,bobx,boby)
+                            
+                        Spawn_e(2,enemies,Enemy)
             for bullet in bullets[:]:
                 bullet.x += bullet.vel_x
                 bullet.y += bullet.vel_y
@@ -604,7 +665,7 @@ def Main(player_name):
                     continue
 
                 # Check bullet → enemy collision
-                for e in enemies[:]:
+                for e in boss[:]:
 
                     if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
                             
@@ -614,6 +675,18 @@ def Main(player_name):
                                 bullets.remove(bullet)
                             else:
                                 e.health -= 10
+                                bullets.remove(bullet)
+                                break
+                for e in enemies[:]:
+
+                    if abs(bullet.x - e.x) < 20 and abs(bullet.y - e.y) < 20:
+                            
+                            if SpowerCol:
+                                
+                                e.health -= 15
+                                bullets.remove(bullet)
+                            else:
+                                e.health -= 5
                                 bullets.remove(bullet)
                                 break
             
@@ -704,6 +777,13 @@ def Main(player_name):
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
+            if score == 19 or score == 39 or score == 59 or score == 79:
+                warning_sound.play(-1)
+                display.blit(boss_text, boss_text.get_rect(center=(screen_w/2, 100)))
+            else:
+                warning_sound.stop()
+            if score == 20 or score == 40 or score == 60 or score == 80:
+                display.blit(boss_text2, boss_text2.get_rect(center=(screen_w/2, 100)))
             pygame.display.flip()
             
 

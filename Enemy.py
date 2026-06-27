@@ -9,16 +9,29 @@ def resource_path(path):
     return os.path.join(base_path, path)
 
 class Enemy:
-    def __init__(self, x, y, speed=0.6, health=100):
+    def __init__(self, x, y, speed=0.6, health=100,type="reg"):
         self.x = x
         self.y = y
-        self.speed = speed
-        self.health = health
+        
+        
         self.last_shot_time = 0
-        self.image = pygame.transform.scale(
-            pygame.image.load(resource_path("assets/Images/Ememy.png")).convert_alpha(),
-            (100, 100)
-        )
+        self.type = type
+        if self.type == "reg":
+            self.speed = speed
+            self.health = health
+            self.image = pygame.transform.scale(
+                pygame.image.load(resource_path("assets/Images/Ememy.png")).convert_alpha(),
+                (100, 100)
+            )
+        if self.type == "boss":
+            self.speed = speed * 2
+            self.health = 1
+            self.image = pygame.transform.scale(
+                pygame.image.load(resource_path("assets/Images/Boss.png")).convert_alpha(),
+                (200, 200)
+            )
+
+        
         self.bullets = []
 
     def move_toward(self, target_x, target_y, PowerCol,test,pause):
