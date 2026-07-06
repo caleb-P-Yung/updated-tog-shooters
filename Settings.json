@@ -1,5 +1,7 @@
 {
-    "V-sync": false,
+    "V-sync": true,
     "Old Potions": false,
-    "Testing": false
+    "Testing": false,
+    "do5thlevel": false,
+    "OutPutlog": true
 }

@@ -21,7 +21,7 @@ import os
 #         os.environ["SDL_AUDIODRIVER"] = "directaudio"
 #         r=False
 #     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
-
+import platform
 import pygame
 import pygame_menu
 import pygame_menu.events
@@ -31,7 +31,10 @@ import sys
 import pygamepopup
 import math
 import time
+from datetime import datetime
 
+# Format options: %Y=Year, %m=Month, %d=Day, %H=Hour, %M=Minute, %S=Second
+formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
 from power import powerup
 from EBullet import EBullet
 from Bullet import Bullet
@@ -43,7 +46,13 @@ from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
 
 
-
+if not os.path.exists("./Settings.json"):
+        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
+        with open("./Settings.json", "w") as f:
+            json.dump(default_settings, f, indent=4)
+with open("./Settings.json", "r") as f:
+            settings = json.load(f)
+            OutPutlog = settings.get("OutPutlog", False)
 def resource_path(path):
     try:
         base_path = sys._MEIPASS
@@ -52,8 +61,8 @@ def resource_path(path):
 
     return os.path.join(base_path, path)
 pygame.font.init()
-if os.system == "Windows":
-    Comic_sans = pygame.font.SysFont('Pacificoregular', 30)
+if platform.system() == "Windows":
+    Comic_sans = pygame.font.SysFont('pacificoregular', 30)
 else:
       Comic_sans = pygame.font.SysFont('Pacifico', 30)
 
@@ -66,6 +75,7 @@ except pygame.error as e:
 
 isFullscreen = False
 end_score=4
+global player_name
 
 player = Player(100, resource_path("assets/Images/Conky-Bob.png"), 100, 100)
 if sound_enabled:
@@ -89,8 +99,6 @@ cat=pygame.image.load(resource_path("assets/Images/cat.JPG"))
 
 
 
-
-
 width, height = pygame.display.set_mode((900, 900)).get_size()
 display = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
 pygamepopup.init()
@@ -98,16 +106,18 @@ bullet_image = pygame.image.load(resource_path("assets/Images/bullet.png")).conv
 Ebullet_image = pygame.image.load(resource_path("assets/Images/egg.png")).convert_alpha()
 bullet_pygame = pygame.transform.scale(bullet_image, (50, 50))
 Ebullet_pygame = pygame.transform.scale(Ebullet_image, (50, 50))
+boss_bullet_pygame = pygame.transform.scale(Ebullet_image, (100, 100))
 amount =1
 bullets = []
 Ebullets = []
 enemies = []
+boss_bullet = []
 bullet_speed = 7
 fire_cooldown = 1000
+boss_fire_cooldown = 10
 last_shot_time = 0
 menu_manager = MenuManager(display)
 start_menu = pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
-pregame_menu=pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
 pygame.display.flip()
 # Load Player Image
 bob = pygame.image.load(player.image).convert_alpha()
@@ -128,10 +138,25 @@ def quit_game():
                             background_sound.fadeout(0)
                             shutdown_sound.set_volume(1.0)
                             shutdown_sound.play()
-                            print(f"Just Played:{shutdown_sound}")
-                            print("The lenegh of the Sound was:", shutdown_sound.get_length())
+
     except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+            if not os.path.exists("./log.txt") and OutPutlog:
+                default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
+                with open("./log.txt", "w") as f:
+                    f.write(default_settings)
+            elif  os.path.exists("./log.txt") and OutPutlog:
+                default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
+                with open("./log.txt", "w") as f:
+                    f.write(default_settings)
+    if not os.path.exists("./log.txt") and OutPutlog:
+        default_settings = f"{formatted_time}: sys: quited the game\n"
+        with open("./log.txt", "a") as f:
+            f.write(default_settings)
+    else:
+        if OutPutlog:
+            default_settings = f"{formatted_time}: sys: quited the game\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
     time.sleep(3.2036733627319336)
     
     pygame.quit()
@@ -232,19 +257,32 @@ def shoot_enemy_bullet(enemy):
 
         Ebullets.append(new_bullet)
         enemy.last_shot_time = current_time
+def shoot_boss_bullet(enemy):
+    current_time = pygame.time.get_ticks()
+
+    if current_time - enemy.last_shot_time >= boss_fire_cooldown :
+        e = player  # target player
+        dx = e.x - (enemy.x + random.randint(-500, 500))
+        dy = e.y - (enemy.y + random.randint(-500, 500))
+        dist = max((dx**2 + dy**2)**0.5, 0.001)
+
+        new_bullet = EBullet(
+            enemy.x,
+            enemy.y,
+            (dx/dist) * bullet_speed,
+            (dy/dist) * bullet_speed
+        )
+
+        boss_bullet.append(new_bullet)
+        enemy.last_shot_time = current_time
 def close_menu():
     paused_menu.disable()
 
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
-    
-    paused = False
-    global paused_menu
-    paused_menu = pygame_menu.Menu('Paused', width, height, theme=pygame_menu.themes.THEME_BLUE)
-   
     if not os.path.exists("./Settings.json"):
-        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False}
+        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
         with open("./Settings.json", "w") as f:
             json.dump(default_settings, f, indent=4)
     with open("./Settings.json", "r") as f:
@@ -252,12 +290,37 @@ def Main(player_name):
     Vsync = settings.get("V-sync", True)
     doOldPotions = settings.get("Old Potions", True)
     testing = settings.get("Testing", False)
-    print("V-sync is:", Vsync)
+    do5thlevel = settings.get("do5thlevel", False)
+    OutPutlog = settings.get("OutPutlog", False)
+    if not os.path.exists("./log.txt") and OutPutlog:
+        default_settings = f"{formatted_time}: {player_name}: launched main function and got settings from Settings.json\n"
+        with open("./log.txt", "a") as f:
+            f.write(default_settings)
+    else:
+        if OutPutlog:
+            default_settings = f"{formatted_time}: {player_name}: launched main function and got settings from Settings.json\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+    paused = False
+    global paused_menu
+    paused_menu = pygame_menu.Menu('Paused', width, height, theme=pygame_menu.themes.THEME_BLUE)
+   
+    
+
+    
     try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
     except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+            if not os.path.exists("./log.txt") and OutPutlog:
+                default_settings = f"{formatted_time}: {player_name}: Error:womp womp your system doesn't support audio \n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
+            else:
+                if OutPutlog:
+                    default_settings = f"{formatted_time}: {player_name}: Error:womp womp your system doesn't support audio \n"
+                    with open("./log.txt", "a") as f:
+                        f.write(default_settings)
     
 
     fullscreen()
@@ -305,7 +368,15 @@ def Main(player_name):
                     pass
                     
     except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+            if not os.path.exists("./log.txt") and OutPutlog:
+                default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
+            else:
+                if OutPutlog:
+                    default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                    with open("./log.txt", "a") as f:
+                        f.write(default_settings)
     
     pygame.key.set_repeat()
     Spawn_e(1,enemies,Enemy)
@@ -326,6 +397,15 @@ def Main(player_name):
     spin=0
     Ememy_cooldown=0
     boss_cooldown=0
+    if not os.path.exists("./log.txt") and OutPutlog:
+        default_settings = f"{formatted_time}: {player_name}: Launching main loop\n"
+        with open("./log.txt", "a") as f:
+            f.write(default_settings)
+    else:
+        if OutPutlog:
+            default_settings = f"{formatted_time}: {player_name}: Launching main loop\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
     while running:
             label = paused_menu.get_widget("score")
             label.set_title(f"Score: {score}")
@@ -369,7 +449,7 @@ def Main(player_name):
             boss_string="WARNING John Cena is coming!"
             boss_text=Comic_sans.render(boss_string, False, (255, 0, 0))
             boss_string2="WARNING John Cena is HERE!"
-            boss_text2=Comic_sans.render(boss_string, False, (255, 0, 0))
+            boss_text2=Comic_sans.render(boss_string2, False, (255, 0, 0))
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
             disFPS= f"FPS:{math.ceil(clock.get_fps())}"
@@ -404,10 +484,28 @@ def Main(player_name):
                     if event.type == pygame.KEYDOWN:
 
                         if event.key == pygame.K_u and not paused:
-
+                            
                             for i in range(len(inventory)):
-
+                                if not (inventory[i] is None):
+                                    if not os.path.exists("./log.txt") and OutPutlog:
+                                            default_settings = f"{formatted_time}: {player_name}: using powerup:{inventory[i].type} \n"
+                                            with open("./log.txt", "a") as f:
+                                                f.write(default_settings)
+                                    else:
+                                        if OutPutlog:
+                                            default_settings = f"{formatted_time}: {player_name}: using powerup:{inventory[i].type} \n"
+                                            with open("./log.txt", "a") as f:
+                                                f.write(default_settings)
                                 if inventory[i] is None:
+                                    if not os.path.exists("./log.txt") and OutPutlog:
+                                        default_settings = f"{formatted_time}: {player_name}: Error: Invalid powerup \n"
+                                        with open("./log.txt", "a") as f:
+                                            f.write(default_settings)
+                                    else:
+                                        if OutPutlog:
+                                            default_settings = f"{formatted_time}: {player_name}: Error: Invalid powerup \n"
+                                            with open("./log.txt", "a") as f:
+                                                f.write(default_settings)
                                     continue
 
                                 if inventory[i].type == "h" and player.health <= 80:
@@ -486,28 +584,65 @@ def Main(player_name):
             if score >= 20 and score < 40:
                 lvl1_inc +=1
                 if lvl1_inc == 1:
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800),0.6,100,"boss"))
                 display.blit(pygame.transform.scale(lvl2_img,(w,h)),(0,0))
             if score >= 40 and score < 60:
                 lvl2_inc +=1
 
                 if lvl2_inc == 1:
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
             if score >= 60 and score < 80:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
-            if score >= 80:
+            if score >= 80 and do5thlevel:
                 lvl4_inc +=1
                 if lvl4_inc == 1:
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(cat,(w,h)),(0,0))
 
             
             display.blit(BIG_BOB, (bobx, boby))
             if not doOldPotions:
+
                 rect_w = w*0.5
                 rect_h=100
                 main_rect = pygame.Rect(0, 0, rect_w, rect_h)
@@ -562,6 +697,16 @@ def Main(player_name):
                 pygame.draw.rect(display, (255, 255, 255), slot9)
             for p in powerups:
                 p.draw(display)
+                if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Appended powerup: {p.type}\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Appended powerup: {p.type}\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                 if p.type == "s":
                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
                         if not doOldPotions:
@@ -594,9 +739,8 @@ def Main(player_name):
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
                 if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
-            
-            for e in enemies[:]:                                    
-                if (not isStunCol or not testing and boss_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
+            for e in boss[:]:                                    
+                if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_boss_bullet(enemy=e)
 
             for e in enemies[:]:
                 e.move_toward(bobx, boby,isStunCol,testing,paused)
@@ -612,7 +756,7 @@ def Main(player_name):
             for e in boss[:]:
                 e.move_toward(bobx, boby,isStunCol,testing,paused)
                 e.draw(display)
-                draw_health_bar(display, e.x-10, e.y-20, e.health, 100)
+                draw_health_bar(display, e.x-10, e.y-20, e.health, 200)
                 # Damage player on touch
                 if abs(e.x - bobx) < 30 and abs(e.y - boby) < 30:
                     player.health -= 0.05
@@ -626,7 +770,7 @@ def Main(player_name):
                     for s in spikes:
                         s.draw(display)
                         if (s.x - r <= e.x <= s.x + r) and (s.y - r <= e.y <= s.y + r):
-                            if e.health <100:
+                            if e.health <200:
                                 e.health+=0.05
                     if e.health <= 0:
                         boss.remove(e)
@@ -637,13 +781,25 @@ def Main(player_name):
                             kill_sound.set_volume(1.0)
                             kill_sound.play()
                         except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+                            if not os.path.exists("./log.txt"):
+                                default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                                with open("./log.txt", "a") as f:
+                                    f.write(default_settings)
                         
 
                         
                         # Respawn new enemy
                         
                         save_score(player_name, score)
+                        if not os.path.exists("./log.txt") and OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
+                        else:
+                            if OutPutlog:
+                                default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
+                                with open("./log.txt", "a") as f:
+                                    f.write(default_settings)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
                         if score %4 == 0:
@@ -661,7 +817,17 @@ def Main(player_name):
 
                 # Off screen delete
                 if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > screen_h:
+                    if not os.path.exists("./log.txt") and OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: deleted bullet:{bullet}\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: deleted bullet:{bullet}\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
                     bullets.remove(bullet)
+                    
                     continue
 
                 # Check bullet → enemy collision
@@ -707,6 +873,23 @@ def Main(player_name):
                                 player.health -= 0.5
                                 Ebullets.remove(bullet)
                                 break
+            for bullet in boss_bullet[:]:
+                if not paused:
+                    bullet.x += bullet.vel_x
+                    bullet.y += bullet.vel_y
+
+                display.blit(pygame.transform.rotate(boss_bullet_pygame,spin), (bullet.x, bullet.y))
+                
+                # Off screen delete
+                if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > screen_h:
+                    # bullets.remove(bullet)
+                    continue
+
+                # Check bullet → enemy collision
+                if abs(bullet.x - bobx) < 20 and abs(bullet.y - boby) < 20:
+                                player.health -= 0.75
+                                boss_bullet.remove(bullet)
+                                break
             for s in spikes:
                 s.draw(display)
                 if (s.x - r <= bobx <= s.x + r) and (s.y - r <= boby <= s.y + r):
@@ -738,13 +921,25 @@ def Main(player_name):
                             kill_sound.set_volume(1.0)
                             kill_sound.play()
                         except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
+                            if not os.path.exists("./log.txt"):
+                                default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                                with open("./log.txt", "w") as f:
+                                    f.write(default_settings)
                         
 
                         
                         # Respawn new enemy
                         
                         save_score(player_name, score)
+                        if not os.path.exists("./log.txt") and OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
+                            with open("./log.txt", "a") as f:
+                                f.write(default_settings)
+                        else:
+                            if OutPutlog:
+                                default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
+                                with open("./log.txt", "a") as f:
+                                    f.write(default_settings)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
                         if score %4 == 0:
@@ -790,7 +985,13 @@ def Main(player_name):
 
 
 # ----------------- MENU SETUP -----------------
-
+if not os.path.exists("./Settings.json"):
+        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
+        with open("./Settings.json", "w") as f:
+            json.dump(default_settings, f, indent=4)
+        with open("./Settings.json", "r") as f:
+            settings = json.load(f)
+            OutPutlog = settings.get("OutPutlog", False)
 def start_buttons():
     start_menu.add.text_input("type your name: ", copy_paste_enable=True, onreturn=Main)
     start_menu.add.button("Quit if you're not brave enough", pygame_menu.events.EXIT)
@@ -798,9 +999,21 @@ try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
 except AttributeError:
-                            print("You did : \n 1.choose the wrong audio driver \n 2. your system doesn't support audio ")
-    
+            if not os.path.exists("./log.txt"):
+                default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
+                with open("./log.txt", "w") as f:
+                    f.write(default_settings)
+
 start_buttons()
 pygame.display.flip()
 start_menu.mainloop(display)
 pygame.quit()
+# if not os.path.exists("./log.txt") and OutPutlog:
+#     default_settings = "\n"
+#     with open("./log.txt", "a") as f:
+#         f.write(default_settings)
+# else:
+#     if OutPutlog:
+#         default_settings = "\n"
+#         with open("./log.txt", "a") as f:
+#             f.write(default_settings)
