@@ -360,7 +360,7 @@ def Main(player_name):
     lvl2_inc = 0
     lvl3_inc = 0
     lvl4_inc = 0
-    score = 19
+    score = 0
 
     r=100
     try:
