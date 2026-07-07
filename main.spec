@@ -32,13 +32,7 @@ a = Analysis(
     optimize=0,
 )
 pyz = PYZ(a.pure)
-if sys.platform == "darwin":
-    app = BUNDLE(
-        EXE,
-        name="MyGame.app",
-        icon="assets/icon.icns",
-        bundle_identifier="com.caleb.mygame",
-    )
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -59,3 +53,10 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name="MyGame.app",
+        bundle_identifier="com.example.mygame",
+        icon="assets/icon.icns",
+    )
