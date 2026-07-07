@@ -1,7 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
+import sys
+from pathlib import Path
 
-datas = [('assets/*', 'assets')]
+datas = []
+
+for file in Path("assets").rglob("*"):
+    if file.is_file():
+        datas.append((str(file), str(file.parent)))
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('pygamepopup')
@@ -26,14 +32,20 @@ a = Analysis(
     optimize=0,
 )
 pyz = PYZ(a.pure)
-
+if sys.platform == "darwin":
+    app = BUNDLE(
+        exe,
+        name="MyGame.app",
+        icon="assets/icon.icns",
+        bundle_identifier="com.caleb.mygame",
+    )
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
     a.datas,
     [],
-    name='main',
+    name='MyGame',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

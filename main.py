@@ -31,10 +31,10 @@ import sys
 import pygamepopup
 import math
 import time
-from datetime import datetime
+
 
 # Format options: %Y=Year, %m=Month, %d=Day, %H=Hour, %M=Minute, %S=Second
-formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
+
 from power import powerup
 from EBullet import EBullet
 from Bullet import Bullet
@@ -42,10 +42,11 @@ from Player import Player
 from Enemy import Enemy
 from spike import Spikes
 
+from datetime import datetime
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
 
-
+formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
 if not os.path.exists("./Settings.json"):
         default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
         with open("./Settings.json", "w") as f:
@@ -62,10 +63,40 @@ def resource_path(path):
     return os.path.join(base_path, path)
 pygame.font.init()
 if platform.system() == "Windows":
-    Comic_sans = pygame.font.SysFont('pacificoregular', 30)
+    if not os.path.exists("./log.txt") and OutPutlog:
+        default_settings = f"{formatted_time}: Trying to initalize the font\n"
+        with open("./log.txt", "a") as f:
+            f.write(default_settings)
+    else:
+        if OutPutlog:
+            default_settings = f"{formatted_time}: Trying to initalize the font\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+    try:
+        Comic_sans = pygame.font.SysFont('pacificoregular', 30)
+    except Exception as e:
+        if not os.path.exists("./log.txt") and OutPutlog:
+            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+        else:
+            if OutPutlog:
+                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
 else:
-      Comic_sans = pygame.font.SysFont('Pacifico', 30)
-
+    try:
+        Comic_sans = pygame.font.SysFont('pacificoregular', 30)
+    except Exception as e:
+        if not os.path.exists("./log.txt") and OutPutlog:
+            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+        else:
+            if OutPutlog:
+                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
 pygame.init()
 sound_enabled = True
 try:
@@ -533,12 +564,6 @@ def Main(player_name):
 
                             while len(inventory) < len(slots):
                                 inventory.append(None)
-
-
-                        
-
-
-
             # ------------- PLAYER MOVEMENT LIMITS ----------------
             if not menu_manager.active_menu and not game_lost and not paused:
 
@@ -585,12 +610,12 @@ def Main(player_name):
                 lvl1_inc +=1
                 if lvl1_inc == 1:
                     if not os.path.exists("./log.txt") and OutPutlog:
-                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n"
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n Spawning John Cena\n"
                         with open("./log.txt", "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
-                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n"
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n Spawning John Cena\n"
                             with open("./log.txt", "a") as f:
                                 f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800),0.6,100,"boss"))
@@ -600,12 +625,12 @@ def Main(player_name):
 
                 if lvl2_inc == 1:
                     if not os.path.exists("./log.txt") and OutPutlog:
-                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n"
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n Spawning John Cena\n"
                         with open("./log.txt", "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
-                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n"
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n Spawning John Cena\n"
                             with open("./log.txt", "a") as f:
                                 f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
@@ -614,12 +639,12 @@ def Main(player_name):
                 lvl3_inc +=1
                 if lvl3_inc == 1:
                     if not os.path.exists("./log.txt") and OutPutlog:
-                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n"
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n Spawning John Cena\n"
                         with open("./log.txt", "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
-                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n"
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n Spawning John Cena\n"
                             with open("./log.txt", "a") as f:
                                 f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
@@ -628,12 +653,12 @@ def Main(player_name):
                 lvl4_inc +=1
                 if lvl4_inc == 1:
                     if not os.path.exists("./log.txt") and OutPutlog:
-                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n"
+                        default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n Spawning John Cena\n"
                         with open("./log.txt", "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
-                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n"
+                            default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n Spawning John Cena\n"
                             with open("./log.txt", "a") as f:
                                 f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
