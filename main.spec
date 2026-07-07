@@ -58,5 +58,5 @@ if sys.platform == "darwin":
         exe,
         name="MyGame.app",
         bundle_identifier="com.example.mygame",
-        icon="assets/icon.icns",
+        icon=None,
     )
