@@ -34,7 +34,7 @@ a = Analysis(
 pyz = PYZ(a.pure)
 if sys.platform == "darwin":
     app = BUNDLE(
-        exe,
+        EXE,
         name="MyGame.app",
         icon="assets/icon.icns",
         bundle_identifier="com.caleb.mygame",
