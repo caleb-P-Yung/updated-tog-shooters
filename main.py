@@ -237,7 +237,7 @@ def draw_health_bar(surface, x, y, current_health, max_health, width=200, height
     pygame.draw.rect(surface, (0, 0, 0), (x, y, width, height), 3)
 
 
-def save_score(username, score, filename=resource_path("assets/scores.json")):
+def save_score(username, score, filename="scores.json"):
     if not os.path.exists(filename):
         data = {}
     else:
@@ -251,7 +251,7 @@ def save_score(username, score, filename=resource_path("assets/scores.json")):
         json.dump(data, f, indent=4)
 
 
-def get_score(username, filename=resource_path("assets/scores.json")):
+def get_score(username, filename="scores.json"):
     if not os.path.exists(filename):
         return "bob"
     with open(filename, "r") as f:
@@ -702,15 +702,15 @@ def Main(player_name):
         (slot8x, slot8y),
         (slot9x, slot9y),
     ]
-                slot1= pygame.Rect(slot1x, slot1y, rect_h-20, rect_h-20)
-                slot2= pygame.Rect(slot2x, slot2y, rect_h-20, rect_h-20)
-                slot3= pygame.Rect(slot3x, slot3y, rect_h-20, rect_h-20)
-                slot4= pygame.Rect(slot4x, slot4y, rect_h-20, rect_h-20)
-                slot5= pygame.Rect(slot5x, slot5y, rect_h-20, rect_h-20)
-                slot6= pygame.Rect(slot6x, slot6y, rect_h-20, rect_h-20)
-                slot7= pygame.Rect(slot7x, slot7y, rect_h-20, rect_h-20)
-                slot8= pygame.Rect(slot8x, slot8y, rect_h-20, rect_h-20)
-                slot9= pygame.Rect(slot9x, slot9y, rect_h-20, rect_h-20)
+                slot1= pygame.Rect(slot1x, slot1y, 9/rect_w, rect_h-20)
+                slot2= pygame.Rect(slot2x, slot2y, 9/rect_w, rect_h-20)
+                slot3= pygame.Rect(slot3x, slot3y, 9/rect_w, rect_h-20)
+                slot4= pygame.Rect(slot4x, slot4y, 9/rect_w, rect_h-20)
+                slot5= pygame.Rect(slot5x, slot5y, 9/rect_w, rect_h-20)
+                slot6= pygame.Rect(slot6x, slot6y, 9/rect_w, rect_h-20)
+                slot7= pygame.Rect(slot7x, slot7y, 9/rect_w, rect_h-20)
+                slot8= pygame.Rect(slot8x, slot8y, 9/rect_w, rect_h-20)
+                slot9= pygame.Rect(slot9x, slot9y, 9/rect_w, rect_h-20)
                 pygame.draw.rect(display, (255, 255, 255), slot1)
                 pygame.draw.rect(display, (255, 255, 255), slot2)
                 pygame.draw.rect(display, (255, 255, 255), slot3)
@@ -718,7 +718,6 @@ def Main(player_name):
                 pygame.draw.rect(display, (255, 255, 255), slot5)
                 pygame.draw.rect(display, (255, 255, 255), slot6)
                 pygame.draw.rect(display, (255, 255, 255), slot7)
-                pygame.draw.rect(display, (255, 255, 255), slot8)
                 pygame.draw.rect(display, (255, 255, 255), slot9)
             for p in powerups:
                 p.draw(display)
