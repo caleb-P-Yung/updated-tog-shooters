@@ -139,6 +139,7 @@ bullet_pygame = pygame.transform.scale(bullet_image, (50, 50))
 Ebullet_pygame = pygame.transform.scale(Ebullet_image, (50, 50))
 boss_bullet_pygame = pygame.transform.scale(Ebullet_image, (100, 100))
 amount =1
+# 
 bullets = []
 Ebullets = []
 enemies = []
@@ -670,27 +671,27 @@ def Main(player_name):
 
                 rect_w = w*0.5
                 rect_h=100
-                main_rect = pygame.Rect(0, 0, rect_w, rect_h)
-                main_rect.center = (w/2, h*0.9)
-                pygame.draw.rect(display, (128, 128, 128), main_rect)
-                slot1x= main_rect.x + 10
-                slot1y= main_rect.y + 10
-                slot2x= main_rect.x + 10 + rect_h
-                slot2y= main_rect.y + 10
-                slot3x= main_rect.x + 10 + 2*rect_h
-                slot3y= main_rect.y + 10
-                slot4x= main_rect.x + 10 + 3*rect_h
-                slot4y= main_rect.y + 10
-                slot5x= main_rect.x + 10 + 4*rect_h
-                slot5y= main_rect.y + 10
-                slot6x= main_rect.x + 10 + 5*rect_h
-                slot6y= main_rect.y + 10
-                slot7x= main_rect.x + 10 + 6*rect_h
-                slot7y= main_rect.y + 10
-                slot8x= main_rect.x + 10 + 7*rect_h
-                slot8y= main_rect.y + 10
-                slot9x= main_rect.x + 10 + 8*rect_h
-                slot9y= main_rect.y + 10
+                main_rect = pygame.transform.scale(pygame.image.load(resource_path("assets/Images/test.png")).convert_alpha(), (500, 125))
+                
+                display.blit(main_rect, (w/2 - main_rect.get_width()/2, h*0.9 - main_rect.get_height()/2))
+                slot1x= w/2 - main_rect.get_width()/2 + 15
+                slot1y= h*0.9 - main_rect.get_height()/2 + 30
+                slot2x= w/2 - main_rect.get_width()/2 + 15 + rect_h
+                slot2y= h*0.9 - main_rect.get_height()/2 + 30
+                slot3x= w/2 - main_rect.get_width()/2 + 15 + 2*rect_h
+                slot3y= h*0.9 - main_rect.get_height()/2 + 30
+                slot4x= w/2 - main_rect.get_width()/2 + 15 + 3*rect_h
+                slot4y= h*0.9 - main_rect.get_height()/2 + 30
+                slot5x= w/2 - main_rect.get_width()/2 + 15 + 4*rect_h
+                slot5y= h*0.9 - main_rect.get_height()/2 + 30
+                slot6x= w/2 - main_rect.get_width()/2 + 15 + 5*rect_h
+                slot6y= h*0.9 - main_rect.get_height()/2 + 30
+                slot7x= w/2 - main_rect.get_width()/2 + 15 + 6*rect_h
+                slot7y= h*0.9 - main_rect.get_height()/2 + 30
+                slot8x= w/2 - main_rect.get_width()/2 + 15 + 7*rect_h
+                slot8y= h*0.9 - main_rect.get_height()/2 + 30
+                slot9x= w/2 - main_rect.get_width()/2 + 15 + 8*rect_h
+                slot9y= h*0.9 - main_rect.get_height()/2 + 30
                 slots = [
         (slot1x, slot1y),
         (slot2x, slot2y),
@@ -702,23 +703,6 @@ def Main(player_name):
         (slot8x, slot8y),
         (slot9x, slot9y),
     ]
-                slot1= pygame.Rect(slot1x, slot1y, 9/rect_w, rect_h-20)
-                slot2= pygame.Rect(slot2x, slot2y, 9/rect_w, rect_h-20)
-                slot3= pygame.Rect(slot3x, slot3y, 9/rect_w, rect_h-20)
-                slot4= pygame.Rect(slot4x, slot4y, 9/rect_w, rect_h-20)
-                slot5= pygame.Rect(slot5x, slot5y, 9/rect_w, rect_h-20)
-                slot6= pygame.Rect(slot6x, slot6y, 9/rect_w, rect_h-20)
-                slot7= pygame.Rect(slot7x, slot7y, 9/rect_w, rect_h-20)
-                slot8= pygame.Rect(slot8x, slot8y, 9/rect_w, rect_h-20)
-                slot9= pygame.Rect(slot9x, slot9y, 9/rect_w, rect_h-20)
-                pygame.draw.rect(display, (255, 255, 255), slot1)
-                pygame.draw.rect(display, (255, 255, 255), slot2)
-                pygame.draw.rect(display, (255, 255, 255), slot3)
-                pygame.draw.rect(display, (255, 255, 255), slot4)
-                pygame.draw.rect(display, (255, 255, 255), slot5)
-                pygame.draw.rect(display, (255, 255, 255), slot6)
-                pygame.draw.rect(display, (255, 255, 255), slot7)
-                pygame.draw.rect(display, (255, 255, 255), slot9)
             for p in powerups:
                 p.draw(display)
                 if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
