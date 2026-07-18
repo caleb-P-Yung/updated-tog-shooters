@@ -21,6 +21,7 @@ import os
 #         os.environ["SDL_AUDIODRIVER"] = "directaudio"
 #         r=False
 #     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
+import ctypes
 import platform
 import pygame
 import pygame_menu
@@ -42,6 +43,7 @@ from Player import Player
 from Enemy import Enemy
 from spike import Spikes
 
+from AppKit import NSScreen
 from datetime import datetime
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
@@ -259,7 +261,7 @@ def get_score(username, filename="scores.json"):
         data = json.load(f)
     return data.get(username)
 
-def shoot_bullet(enemies,bobx,boby):
+def shoot_bullet(enemies,bobx,boby,sound):
     global last_shot_time
     current_time = pygame.time.get_ticks()
     if current_time - last_shot_time >= fire_cooldown and enemies:
@@ -270,6 +272,7 @@ def shoot_bullet(enemies,bobx,boby):
 
         new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
         bullets.append(new_bullet)
+        sound.play()
         last_shot_time = current_time
 def shoot_enemy_bullet(enemy):
     current_time = pygame.time.get_ticks()
@@ -438,23 +441,65 @@ def Main(player_name):
             default_settings = f"{formatted_time}: {player_name}: Launching main loop\n"
             with open("./log.txt", "a") as f:
                 f.write(default_settings)
-    while running:
-            label = paused_menu.get_widget("score")
-            label.set_title(f"Score: {score}")
-            clock.tick()
-            Ememy_cooldown+=1
-            boss_cooldown+=0.5
-            item_images = {
+    item_images = {
     "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
     "st": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/stun.png")).convert_alpha(), (50, 50)),
     "h": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/health.png")).convert_alpha(), (50, 50)),
     "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
 }
+    while running:
+            label = paused_menu.get_widget("score")
+            label.set_title(f"Score: {score}")
+            try:
+                if Vsync:
+                    if platform.system() == "Windows":
+
+                        # Define minimal DEVMODE structure needed for display frequency
+                        class DEVMODE(ctypes.Structure):
+                            _fields_ = [("dmDeviceName", ctypes.c_char * 32),
+                                        ("unused1", ctypes.c_byte * 84),
+                                        ("dmFields", ctypes.c_ulong),
+                                        ("unused2", ctypes.c_byte * 24),
+                                        ("dmDisplayFrequency", ctypes.c_ulong)]
+
+                        # Query the primary display settings for the frequency
+                        dm = DEVMODE()
+                        ctypes.windll.user32.EnumDisplaySettingsA(None, -1, ctypes.byref(dm))
+
+                        clock.tick(dm.dmDisplayFrequency)
+                        disRF=f"Refresh Rate:{dm.dmDisplayFrequency}"
+                    if platform.system() == "Darwin":
+                        screen = NSScreen.mainScreen()  # the screen with active focus
+                        refresh_rate = screen.maximumFramesPerSecond()
+                        clock.tick(refresh_rate)
+                        disRF=f"Refresh Rate:{refresh_rate}"
+                    if platform.system() == "Linux":
+                        # Use xrandr to get the refresh rate
+                        import subprocess
+                        output = subprocess.check_output("xrandr | grep '*' | awk '{print $1}'", shell=True)
+                        refresh_rate = float(output.split()[0].decode('utf-8').split('x')[1])
+                        clock.tick(refresh_rate)
+                        disRF=f"Refresh Rate:{refresh_rate}"
+                        
+                elif not Vsync:
+                    clock.tick()
+            except Exception as e:
+                if not os.path.exists("./log.txt") and OutPutlog:
+                    default_settings = f"{formatted_time}: {player_name}: Error: {e}\n"
+                    with open("./log.txt", "a") as f:
+                        f.write(default_settings)
+                else:
+                    if OutPutlog:
+                        default_settings = f"{formatted_time}: {player_name}: Error: {e}\n"
+                        with open("./log.txt", "a") as f:
+                            f.write(default_settings)
+            Ememy_cooldown+=1
+            boss_cooldown+=0.5
+
             spin+=1
             player.x, player.y = bobx,boby
             
-            if Vsync:
-                clock.tick(60)
+
             if SpowerCol:
                 SpowerCoolDown+=1
                 if SpowerCoolDown >= 1000:
@@ -485,16 +530,18 @@ def Main(player_name):
             string2=f"Your HighScore is {highscore["Highscore"]}"
             string = f"Your current score is {score}"
             disFPS= f"FPS:{math.ceil(clock.get_fps())}"
+            
             text2=Comic_sans.render(string2, False, (0, 0, 0))
             text = Comic_sans.render(string, False, (0, 0, 0))
             disFPST = Comic_sans.render(disFPS, False, (0, 0, 0))
+            disRFT=Comic_sans.render(disRF, False, (0, 0, 0))
             global current_time
             current_time = pygame.time.get_ticks()
             keys = pygame.key.get_pressed()
             mouse_buttons = pygame.mouse.get_pressed()
             if not menu_manager.active_menu and not game_lost:
                 if mouse_buttons[0]:  # left button held
-                    shoot_bullet(enemies,bobx,boby)
+                    shoot_bullet(enemies,bobx,boby,kill_sound)
             for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         
@@ -598,7 +645,8 @@ def Main(player_name):
                     boby += player_speed
 
                 if left_click_held:
-                    shoot_bullet(enemies,bobx-1,boby+1)
+                    shoot_bullet(enemies,bobx-1,boby+1,kill_sound)
+                    
                 
 
                 # ------------- SHOOTING ----------------
@@ -980,6 +1028,7 @@ def Main(player_name):
             display.blit(text, text.get_rect(center=(screen_w/2, 10)))
             display.blit(text2, text2.get_rect(center=(screen_w/2, 40)))
             display.blit(disFPST, disFPST.get_rect(center=(screen_w/2, 70)))
+            display.blit(disRFT, disRFT.get_rect(center=(screen_w/2, 100)))
             if score == 19 or score == 39 or score == 59 or score == 79:
                 warning_sound.play(-1)
                 display.blit(boss_text, boss_text.get_rect(center=(screen_w/2, 100)))
