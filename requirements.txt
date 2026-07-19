@@ -1,0 +1,6 @@
+
+pygame
+pygame-popup
+pygame-menu
+python-xlib
+pyobjc-framework-Cocoa

@@ -1,39 +1,47 @@
-(07-18-2026-10-05-01): bob: launched main function and got settings from Settings.json
-(07-18-2026-10-05-01): bob: Launching main loop
-(07-18-2026-10-05-01): sys: quited the game
-(07-18-2026-10-32-22): bob: launched main function and got settings from Settings.json
-(07-18-2026-10-32-22): bob: Launching main loop
-(07-18-2026-10-32-22): bob: saved score for bob: 1
-(07-18-2026-10-32-22): bob: deleted bullet:<Bullet.Bullet object at 0x10e98efd0>
-(07-18-2026-10-32-22): sys: quited the game
-(07-18-2026-10-36-52): bob: launched main function and got settings from Settings.json
-(07-18-2026-10-36-52): bob: Launching main loop
-(07-18-2026-10-36-52): bob: deleted bullet:<Bullet.Bullet object at 0x10dca6090>
-(07-18-2026-10-36-52): sys: quited the game
-(07-18-2026-10-39-08): bob: launched main function and got settings from Settings.json
-(07-18-2026-10-39-08): bob: Launching main loop
-(07-18-2026-10-41-34): bob: launched main function and got settings from Settings.json
-(07-18-2026-10-41-34): bob: Launching main loop
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: Appended powerup: h
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x1047e75c0>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x1048319b0>
-(07-18-2026-10-41-34): bob: saved score for bob: 1
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106f9fe50>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106f9ff50>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc86e0>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc8910>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc9630>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc9710>
-(07-18-2026-10-41-34): bob: saved score for bob: 2
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc9a20>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc9e80>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fc9e10>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fca0b0>
-(07-18-2026-10-41-34): bob: deleted bullet:<Bullet.Bullet object at 0x106fca3c0>
-(07-18-2026-10-41-34): sys: quited the game
+Time: (07-19-2026-13-29-45)
+(07-19-2026-13-29-45): Trying to initalize the font
+(07-19-2026-13-29-45): Trying to initalize the font
+(07-19-2026-13-29-45): bob: launched main function and got settings from Settings.json
+(07-19-2026-13-29-45): bob: Launching main loop
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: Appended powerup: h
+(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061B935C0>
+(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061BCC770>
+(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061BCD430>
+(07-19-2026-13-29-45): sys: quited the game

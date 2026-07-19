@@ -21,7 +21,7 @@ import os
 #         os.environ["SDL_AUDIODRIVER"] = "directaudio"
 #         r=False
 #     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
-import ctypes
+
 import platform
 import pygame
 import pygame_menu
@@ -32,7 +32,7 @@ import sys
 import pygamepopup
 import math
 import time
-
+import shutil
 
 # Format options: %Y=Year, %m=Month, %d=Day, %H=Hour, %M=Minute, %S=Second
 
@@ -43,7 +43,7 @@ from Player import Player
 from Enemy import Enemy
 from spike import Spikes
 
-from AppKit import NSScreen
+
 from datetime import datetime
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
@@ -63,6 +63,33 @@ def resource_path(path):
         base_path = os.path.abspath("./")
 
     return os.path.join(base_path, path)
+#archiving older logs
+try:
+    with open('log.txt', 'r', encoding='utf-8') as f:
+        first_line = next(f, "File is empty")
+    if first_line[6:(len(first_line)-1)] != f"{formatted_time}" and first_line != "File is empty":
+        if not os.path.exists(f"./oldlogs/{first_line[6:(len(first_line)-1)]}.txt"):
+            os.makedirs("./oldlogs", exist_ok=True)
+            with open(f"./oldlogs/{first_line[6:(len(first_line)-1)]}.txt", "a") as f:
+                with open("./log.txt", "r") as r:
+                    f.write(r.read())
+        else:
+            shutil.copyfile('log.txt', f'oldlogs/{first_line[6:(len(first_line)-1)]}.txt')
+    else:
+        pass
+except Exception as e:
+    pass
+#adding log.txt
+if not os.path.exists("./log.txt") and OutPutlog:
+        default_settings = f"Time: {formatted_time}\n"
+        with open("./log.txt", "w") as f:
+            f.write(default_settings)
+else:
+        if OutPutlog:
+            default_settings = f"Time: {formatted_time}\n"
+            with open("./log.txt", "w") as f:
+                f.write(default_settings)
+
 pygame.font.init()
 if platform.system() == "Windows":
     if not os.path.exists("./log.txt") and OutPutlog:
@@ -75,7 +102,17 @@ if platform.system() == "Windows":
             with open("./log.txt", "a") as f:
                 f.write(default_settings)
     try:
+        
         Comic_sans = pygame.font.SysFont('pacificoregular', 30)
+        if not os.path.exists("./log.txt") and OutPutlog:
+            default_settings = f"{formatted_time}: Initialized font\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+        else:
+            if OutPutlog:
+                default_settings = f"{formatted_time}: Trying to initalize the font\n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
     except Exception as e:
         if not os.path.exists("./log.txt") and OutPutlog:
             default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
@@ -89,6 +126,15 @@ if platform.system() == "Windows":
 else:
     try:
         Comic_sans = pygame.font.SysFont('pacificoregular', 30)
+        if not os.path.exists("./log.txt") and OutPutlog:
+            default_settings = f"{formatted_time}: Initialized font\n"
+            with open("./log.txt", "a") as f:
+                f.write(default_settings)
+        else:
+            if OutPutlog:
+                default_settings = f"{formatted_time}: Trying to initalize the font\n"
+                with open("./log.txt", "a") as f:
+                    f.write(default_settings)
     except Exception as e:
         if not os.path.exists("./log.txt") and OutPutlog:
             default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
@@ -453,7 +499,7 @@ def Main(player_name):
             try:
                 if Vsync:
                     if platform.system() == "Windows":
-
+                        import ctypes
                         # Define minimal DEVMODE structure needed for display frequency
                         class DEVMODE(ctypes.Structure):
                             _fields_ = [("dmDeviceName", ctypes.c_char * 32),
@@ -469,6 +515,7 @@ def Main(player_name):
                         clock.tick(dm.dmDisplayFrequency)
                         disRF=f"Refresh Rate:{dm.dmDisplayFrequency}"
                     if platform.system() == "Darwin":
+                        from AppKit import NSScreen
                         screen = NSScreen.mainScreen()  # the screen with active focus
                         refresh_rate = screen.maximumFramesPerSecond()
                         clock.tick(refresh_rate)
