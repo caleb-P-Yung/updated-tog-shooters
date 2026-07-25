@@ -16,8 +16,15 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install deps
-        run: pip install PyInstaller pygame pygame-menu pygame-popup
+      - name: Install common deps
+        run: pip install PyInstaller pygame pygame-menu pygame-popup pillow
+
+      - name: Install Linux-only deps
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python-xlib
+      - name: Install macOS-only deps
+        if: runner.os == 'macOS'
+        run: pip install pyobjc-framework-Cocoa
 
       - name: Build
         run: python -m PyInstaller main.spec
