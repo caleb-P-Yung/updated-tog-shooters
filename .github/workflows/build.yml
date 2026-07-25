@@ -21,7 +21,12 @@ jobs:
 
       - name: Install Linux-only deps
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install python-xlib
+        run: sudo apt-get update && sudo pip install python-xlib --break-system-packages
+        
+      - name: Install Windows-only deps
+        if: runner.os == 'Windows'
+        run: pip install pywin32
+
       - name: Install macOS-only deps
         if: runner.os == 'macOS'
         run: pip install pyobjc-framework-Cocoa
