@@ -1,27 +1,4 @@
 import os
-# r= True
-# while r:
-#     i=input("Are you on linux? (y/n) ")
-#     if i.lower() == "y" or i.lower() == "yes":
-#         i2 = input("Are you using PulseAudio? (y/n) ")
-#         if i2.lower() =="y" or i2.lower() == "yes":
-#             os.environ["SDL_AUDIODRIVER"] = "pulseaudio"
-#             r=False
-#         if i2.lower() == "n" or i.lower == "no":
-#             i3= input("Are You Use ALSA?")
-#             if i3.lower() =="y" or i3.lower() == "yes":
-#                 os.environ["SDL_AUDIODRIVER"] = "alsa"
-#                 r=False
-#             if i3.lower() == "n" or i3.lower() == "no":
-#                 i4=input("Are you using PipeWire?")
-#                 if i4.lower() =="y" or i4.lower() == "yes":
-#                     os.environ["SDL_AUDIODRIVER"] = "pipewire"
-#                     r=False
-#     elif i.lower() == "n" or i.lower() == "no":
-#         os.environ["SDL_AUDIODRIVER"] = "directaudio"
-#         r=False
-#     print("n\n\n\n\n\n ANSWER THE QUESTION!!!!!\n")
-
 import platform
 import pygame
 import pygame_menu
@@ -33,7 +10,7 @@ import pygamepopup
 import math
 import time
 import shutil
-
+import tkinter as tk
 # Format options: %Y=Year, %m=Month, %d=Day, %H=Hour, %M=Minute, %S=Second
 
 from power import powerup
@@ -47,15 +24,19 @@ from spike import Spikes
 from datetime import datetime
 from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
+from tkinter import messagebox
+#deifining need functions
+def show_popup_and_exit(message, title="Error"):
+    root = tk.Tk()
+    root.withdraw()
+    root.update()  # force tkinter to process pending events
+    root.lift()
+    root.attributes('-topmost', True)
+    root.after(100, lambda: root.attributes('-topmost', False))
+    messagebox.showerror("Error", message)
+    root.destroy()
+    sys.exit(1)
 
-formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
-if not os.path.exists("./Settings.json"):
-        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
-        with open("./Settings.json", "w") as f:
-            json.dump(default_settings, f, indent=4)
-with open("./Settings.json", "r") as f:
-            settings = json.load(f)
-            OutPutlog = settings.get("OutPutlog", False)
 def resource_path(path):
     try:
         base_path = sys._MEIPASS
@@ -63,15 +44,65 @@ def resource_path(path):
         base_path = os.path.abspath("./")
 
     return os.path.join(base_path, path)
+def get_app_support_dir():
+    if sys.platform == "darwin":
+        base = os.path.expanduser("~/Library/Application Support/EggShooter")
+    elif sys.platform == "win32":
+        base = os.path.join(os.environ["APPDATA"], "EggShooter")
+    else:
+        base = os.path.expanduser("~/.eggshooter")
+    os.makedirs(base, exist_ok=True)
+    return base
+
+
+#checking if in correct folder
+APP_DIR=get_app_support_dir()
+SETTINGS_PATH = os.path.join(APP_DIR, "Settings.json")
+LOG_PATH = os.path.join(APP_DIR, "log.txt")
+LOGS_DIR = os.path.join(APP_DIR, "oldlogs")
+SCORCES_PATH = os.path.join(APP_DIR, "scores.json")
+if sys.platform == "darwin":
+    if getattr(sys, 'frozen', False):
+        # .app bundle: walk up from Contents/MacOS/EggShooter to the .app itself
+        exe_path = os.path.realpath(sys.executable)
+        app_bundle_path = exe_path
+        while not app_bundle_path.endswith(".app"):
+            app_bundle_path = os.path.dirname(app_bundle_path)
+        check_path = os.path.dirname(app_bundle_path)  # the folder containing the .app
+    else:
+        check_path = os.path.dirname(os.path.realpath(__file__))
+elif sys.platform == "win32":
+    if getattr(sys, 'frozen', False):
+        # Running as a packaged .exe
+        exe_path = os.path.realpath(sys.executable)
+        exe_dir = os.path.dirname(exe_path)
+    else:
+        exe_dir = os.path.dirname(os.path.realpath(__file__))
+if sys.platform == "darwin" and check_path != "/Applications":
+        show_popup_and_exit("please move the app to the applications folder","Error")
+if sys.platform == "win32" and exe_dir != os.path.join(os.environ["ProgramFiles"], "EggShooter"):
+        show_popup_and_exit("please move the app to the Program Files folder","Error")
+
+#time formatting for logs
+formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
+if not os.path.exists(SETTINGS_PATH):
+        default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
+        with open(SETTINGS_PATH, "w") as f:
+            json.dump(default_settings, f, indent=4)
+with open(SETTINGS_PATH, "r") as f:
+            settings = json.load(f)
+            OutPutlog = settings.get("OutPutlog", False)
+
+
 #archiving older logs
 try:
     with open('log.txt', 'r', encoding='utf-8') as f:
         first_line = next(f, "File is empty")
     if first_line[6:(len(first_line)-1)] != f"{formatted_time}" and first_line != "File is empty":
         if not os.path.exists(f"./oldlogs/{first_line[6:(len(first_line)-1)]}.txt"):
-            os.makedirs("./oldlogs", exist_ok=True)
+            os.makedirs(LOGS_DIR, exist_ok=True)
             with open(f"./oldlogs/{first_line[6:(len(first_line)-1)]}.txt", "a") as f:
-                with open("./log.txt", "r") as r:
+                with open(LOG_PATH, "r") as r:
                     f.write(r.read())
         else:
             shutil.copyfile('log.txt', f'oldlogs/{first_line[6:(len(first_line)-1)]}.txt')
@@ -80,71 +111,76 @@ try:
 except Exception as e:
     pass
 #adding log.txt
-if not os.path.exists("./log.txt") and OutPutlog:
+if not os.path.exists(LOG_PATH) and OutPutlog:
         default_settings = f"Time: {formatted_time}\n"
-        with open("./log.txt", "w") as f:
+        with open(LOG_PATH, "w") as f:
             f.write(default_settings)
 else:
         if OutPutlog:
             default_settings = f"Time: {formatted_time}\n"
-            with open("./log.txt", "w") as f:
+            with open(LOG_PATH, "w") as f:
                 f.write(default_settings)
-
+# getting font
 pygame.font.init()
 if platform.system() == "Windows":
-    if not os.path.exists("./log.txt") and OutPutlog:
+    if not os.path.exists(LOG_PATH) and OutPutlog:
         default_settings = f"{formatted_time}: Trying to initalize the font\n"
-        with open("./log.txt", "a") as f:
+        with open(LOG_PATH, "a") as f:
             f.write(default_settings)
     else:
         if OutPutlog:
             default_settings = f"{formatted_time}: Trying to initalize the font\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
     try:
         
         Comic_sans = pygame.font.SysFont('pacificoregular', 30)
-        if not os.path.exists("./log.txt") and OutPutlog:
+        if not os.path.exists(LOG_PATH) and OutPutlog:
             default_settings = f"{formatted_time}: Initialized font\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
         else:
             if OutPutlog:
                 default_settings = f"{formatted_time}: Trying to initalize the font\n"
-                with open("./log.txt", "a") as f:
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
     except Exception as e:
-        if not os.path.exists("./log.txt") and OutPutlog:
-            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
-            with open("./log.txt", "a") as f:
+        if not os.path.exists(LOG_PATH) and OutPutlog:
+            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\nShutting down game\n"
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
+            sys.exit(1)
+        
         else:
             if OutPutlog:
-                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
-                with open("./log.txt", "a") as f:
+                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\nShutting down game\n"
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
+            sys.exit(1)
 else:
     try:
         Comic_sans = pygame.font.SysFont('pacificoregular', 30)
-        if not os.path.exists("./log.txt") and OutPutlog:
+        if not os.path.exists(LOG_PATH) and OutPutlog:
             default_settings = f"{formatted_time}: Initialized font\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
         else:
             if OutPutlog:
                 default_settings = f"{formatted_time}: Trying to initalize the font\n"
-                with open("./log.txt", "a") as f:
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
     except Exception as e:
-        if not os.path.exists("./log.txt") and OutPutlog:
-            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
-            with open("./log.txt", "a") as f:
+        if not os.path.exists(LOG_PATH) and OutPutlog:
+            default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\nShutting down game\n"
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
+            sys.exit(1)
         else:
             if OutPutlog:
-                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\n"
-                with open("./log.txt", "a") as f:
+                default_settings = f"{formatted_time}: Error: Failed to initialize font: {e}\nShutting down game\n"
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
+        sys.exit(1)
 pygame.init()
 sound_enabled = True
 try:
@@ -220,22 +256,22 @@ def quit_game():
                             shutdown_sound.play()
 
     except AttributeError:
-            if not os.path.exists("./log.txt") and OutPutlog:
+            if not os.path.exists(LOG_PATH) and OutPutlog:
                 default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
-                with open("./log.txt", "w") as f:
+                with open(LOG_PATH, "w") as f:
                     f.write(default_settings)
-            elif  os.path.exists("./log.txt") and OutPutlog:
+            elif  os.path.exists(LOG_PATH) and OutPutlog:
                 default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
-                with open("./log.txt", "w") as f:
+                with open(LOG_PATH, "w") as f:
                     f.write(default_settings)
-    if not os.path.exists("./log.txt") and OutPutlog:
+    if not os.path.exists(LOG_PATH) and OutPutlog:
         default_settings = f"{formatted_time}: sys: quited the game\n"
-        with open("./log.txt", "a") as f:
+        with open(LOG_PATH, "a") as f:
             f.write(default_settings)
     else:
         if OutPutlog:
             default_settings = f"{formatted_time}: sys: quited the game\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
     time.sleep(3.2036733627319336)
     
@@ -286,7 +322,7 @@ def draw_health_bar(surface, x, y, current_health, max_health, width=200, height
     pygame.draw.rect(surface, (0, 0, 0), (x, y, width, height), 3)
 
 
-def save_score(username, score, filename="scores.json"):
+def save_score(username, score, filename=SCORCES_PATH ):
     if not os.path.exists(filename):
         data = {}
     else:
@@ -300,7 +336,7 @@ def save_score(username, score, filename="scores.json"):
         json.dump(data, f, indent=4)
 
 
-def get_score(username, filename="scores.json"):
+def get_score(username, filename=SCORCES_PATH ):
     if not os.path.exists(filename):
         return "bob"
     with open(filename, "r") as f:
@@ -362,25 +398,25 @@ def close_menu():
 # ----------------- MAIN GAME LOOP -----------------
 
 def Main(player_name):
-    if not os.path.exists("./Settings.json"):
+    if not os.path.exists(SETTINGS_PATH):
         default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
-        with open("./Settings.json", "w") as f:
+        with open(SETTINGS_PATH, "w") as f:
             json.dump(default_settings, f, indent=4)
-    with open("./Settings.json", "r") as f:
+    with open(SETTINGS_PATH, "r") as f:
         settings = json.load(f)
     Vsync = settings.get("V-sync", True)
     doOldPotions = settings.get("Old Potions", True)
     testing = settings.get("Testing", False)
     do5thlevel = settings.get("do5thlevel", False)
     OutPutlog = settings.get("OutPutlog", False)
-    if not os.path.exists("./log.txt") and OutPutlog:
+    if not os.path.exists(LOG_PATH) and OutPutlog:
         default_settings = f"{formatted_time}: {player_name}: launched main function and got settings from Settings.json\n"
-        with open("./log.txt", "a") as f:
+        with open(LOG_PATH, "a") as f:
             f.write(default_settings)
     else:
         if OutPutlog:
             default_settings = f"{formatted_time}: {player_name}: launched main function and got settings from Settings.json\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
     paused = False
     global paused_menu
@@ -393,14 +429,14 @@ def Main(player_name):
                             start_sound.set_volume(1.0)
                             start_sound.play()
     except AttributeError:
-            if not os.path.exists("./log.txt") and OutPutlog:
+            if not os.path.exists(LOG_PATH) and OutPutlog:
                 default_settings = f"{formatted_time}: {player_name}: Error:womp womp your system doesn't support audio \n"
-                with open("./log.txt", "a") as f:
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
             else:
                 if OutPutlog:
                     default_settings = f"{formatted_time}: {player_name}: Error:womp womp your system doesn't support audio \n"
-                    with open("./log.txt", "a") as f:
+                    with open(LOG_PATH, "a") as f:
                         f.write(default_settings)
     
 
@@ -449,14 +485,14 @@ def Main(player_name):
                     pass
                     
     except AttributeError:
-            if not os.path.exists("./log.txt") and OutPutlog:
+            if not os.path.exists(LOG_PATH) and OutPutlog:
                 default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                with open("./log.txt", "a") as f:
+                with open(LOG_PATH, "a") as f:
                     f.write(default_settings)
             else:
                 if OutPutlog:
                     default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                    with open("./log.txt", "a") as f:
+                    with open(LOG_PATH, "a") as f:
                         f.write(default_settings)
     
     pygame.key.set_repeat()
@@ -478,14 +514,14 @@ def Main(player_name):
     spin=0
     Ememy_cooldown=0
     boss_cooldown=0
-    if not os.path.exists("./log.txt") and OutPutlog:
+    if not os.path.exists(LOG_PATH) and OutPutlog:
         default_settings = f"{formatted_time}: {player_name}: Launching main loop\n"
-        with open("./log.txt", "a") as f:
+        with open(LOG_PATH, "a") as f:
             f.write(default_settings)
     else:
         if OutPutlog:
             default_settings = f"{formatted_time}: {player_name}: Launching main loop\n"
-            with open("./log.txt", "a") as f:
+            with open(LOG_PATH, "a") as f:
                 f.write(default_settings)
     item_images = {
     "s": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/strengh.png")).convert_alpha(), (50, 50)),
@@ -531,14 +567,14 @@ def Main(player_name):
                 elif not Vsync:
                     clock.tick()
             except Exception as e:
-                if not os.path.exists("./log.txt") and OutPutlog:
+                if not os.path.exists(LOG_PATH) and OutPutlog:
                     default_settings = f"{formatted_time}: {player_name}: Error: {e}\n"
-                    with open("./log.txt", "a") as f:
+                    with open(LOG_PATH, "a") as f:
                         f.write(default_settings)
                 else:
                     if OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Error: {e}\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
             Ememy_cooldown+=1
             boss_cooldown+=0.5
@@ -613,24 +649,24 @@ def Main(player_name):
                             
                             for i in range(len(inventory)):
                                 if not (inventory[i] is None):
-                                    if not os.path.exists("./log.txt") and OutPutlog:
+                                    if not os.path.exists(LOG_PATH) and OutPutlog:
                                             default_settings = f"{formatted_time}: {player_name}: using powerup:{inventory[i].type} \n"
-                                            with open("./log.txt", "a") as f:
+                                            with open(LOG_PATH, "a") as f:
                                                 f.write(default_settings)
                                     else:
                                         if OutPutlog:
                                             default_settings = f"{formatted_time}: {player_name}: using powerup:{inventory[i].type} \n"
-                                            with open("./log.txt", "a") as f:
+                                            with open(LOG_PATH, "a") as f:
                                                 f.write(default_settings)
                                 if inventory[i] is None:
-                                    if not os.path.exists("./log.txt") and OutPutlog:
+                                    if not os.path.exists(LOG_PATH) and OutPutlog:
                                         default_settings = f"{formatted_time}: {player_name}: Error: Invalid powerup \n"
-                                        with open("./log.txt", "a") as f:
+                                        with open(LOG_PATH, "a") as f:
                                             f.write(default_settings)
                                     else:
                                         if OutPutlog:
                                             default_settings = f"{formatted_time}: {player_name}: Error: Invalid powerup \n"
-                                            with open("./log.txt", "a") as f:
+                                            with open(LOG_PATH, "a") as f:
                                                 f.write(default_settings)
                                     continue
 
@@ -705,14 +741,14 @@ def Main(player_name):
             if score >= 20 and score < 40:
                 lvl1_inc +=1
                 if lvl1_inc == 1:
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n Spawning John Cena\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 2\n Spawning John Cena\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800),0.6,100,"boss"))
                 display.blit(pygame.transform.scale(lvl2_img,(w,h)),(0,0))
@@ -720,42 +756,42 @@ def Main(player_name):
                 lvl2_inc +=1
 
                 if lvl2_inc == 1:
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n Spawning John Cena\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 3\n Spawning John Cena\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
             if score >= 60 and score < 80:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n Spawning John Cena\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 4\n Spawning John Cena\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
             if score >= 80 and do5thlevel:
                 lvl4_inc +=1
                 if lvl4_inc == 1:
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n Spawning John Cena\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: Leveling up to Level 5\n Spawning John Cena\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(cat,(w,h)),(0,0))
@@ -801,14 +837,14 @@ def Main(player_name):
             for p in powerups:
                 p.draw(display)
                 if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: Appended powerup: {p.type}\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: Appended powerup: {p.type}\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                 if p.type == "s":
                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2):
@@ -884,9 +920,9 @@ def Main(player_name):
                             kill_sound.set_volume(1.0)
                             kill_sound.play()
                         except AttributeError:
-                            if not os.path.exists("./log.txt"):
+                            if not os.path.exists(LOG_PATH):
                                 default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                                with open("./log.txt", "a") as f:
+                                with open(LOG_PATH, "a") as f:
                                     f.write(default_settings)
                         
 
@@ -894,14 +930,14 @@ def Main(player_name):
                         # Respawn new enemy
                         
                         save_score(player_name, score)
-                        if not os.path.exists("./log.txt") and OutPutlog:
+                        if not os.path.exists(LOG_PATH) and OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                         else:
                             if OutPutlog:
                                 default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
-                                with open("./log.txt", "a") as f:
+                                with open(LOG_PATH, "a") as f:
                                     f.write(default_settings)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
@@ -920,14 +956,14 @@ def Main(player_name):
 
                 # Off screen delete
                 if bullet.x < 0 or bullet.x > screen_w or bullet.y < 0 or bullet.y > screen_h:
-                    if not os.path.exists("./log.txt") and OutPutlog:
+                    if not os.path.exists(LOG_PATH) and OutPutlog:
                         default_settings = f"{formatted_time}: {player_name}: deleted bullet:{bullet}\n"
-                        with open("./log.txt", "a") as f:
+                        with open(LOG_PATH, "a") as f:
                             f.write(default_settings)
                     else:
                         if OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: deleted bullet:{bullet}\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                     bullets.remove(bullet)
                     
@@ -1024,9 +1060,9 @@ def Main(player_name):
                             kill_sound.set_volume(1.0)
                             kill_sound.play()
                         except AttributeError:
-                            if not os.path.exists("./log.txt"):
+                            if not os.path.exists(LOG_PATH):
                                 default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                                with open("./log.txt", "w") as f:
+                                with open(LOG_PATH, "w") as f:
                                     f.write(default_settings)
                         
 
@@ -1034,14 +1070,14 @@ def Main(player_name):
                         # Respawn new enemy
                         
                         save_score(player_name, score)
-                        if not os.path.exists("./log.txt") and OutPutlog:
+                        if not os.path.exists(LOG_PATH) and OutPutlog:
                             default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
-                            with open("./log.txt", "a") as f:
+                            with open(LOG_PATH, "a") as f:
                                 f.write(default_settings)
                         else:
                             if OutPutlog:
                                 default_settings = f"{formatted_time}: {player_name}: saved score for {player_name}: {score}\n"
-                                with open("./log.txt", "a") as f:
+                                with open(LOG_PATH, "a") as f:
                                     f.write(default_settings)
                         if str(abs(score))[0] == "5" or str(abs(score))[0] == "0":
                             powerups.append(powerup(screen_w,screen_h,"s",doOldPotions))
@@ -1089,11 +1125,11 @@ def Main(player_name):
 
 
 # ----------------- MENU SETUP -----------------
-if not os.path.exists("./Settings.json"):
+if not os.path.exists(SETTINGS_PATH):
         default_settings = {"V-sync": True,"Old Potions":True,"Testing":False,"do5thlevel":False,"OutPutlog":False}
-        with open("./Settings.json", "w") as f:
+        with open(SETTINGS_PATH, "w") as f:
             json.dump(default_settings, f, indent=4)
-        with open("./Settings.json", "r") as f:
+        with open(SETTINGS_PATH, "r") as f:
             settings = json.load(f)
             OutPutlog = settings.get("OutPutlog", False)
 def start_buttons():
@@ -1103,21 +1139,21 @@ try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
 except AttributeError:
-            if not os.path.exists("./log.txt"):
+            if not os.path.exists(LOG_PATH):
                 default_settings = f"{formatted_time}: sys: Error: womp womp your system doesn't support audio \n"
-                with open("./log.txt", "w") as f:
+                with open(LOG_PATH, "w") as f:
                     f.write(default_settings)
 
 start_buttons()
 pygame.display.flip()
 start_menu.mainloop(display)
 pygame.quit()
-# if not os.path.exists("./log.txt") and OutPutlog:
+# if not os.path.exists(LOG_PATH) and OutPutlog:
 #     default_settings = "\n"
-#     with open("./log.txt", "a") as f:
+#     with open(LOG_PATH, "a") as f:
 #         f.write(default_settings)
 # else:
 #     if OutPutlog:
 #         default_settings = "\n"
-#         with open("./log.txt", "a") as f:
+#         with open(LOG_PATH, "a") as f:
 #             f.write(default_settings)

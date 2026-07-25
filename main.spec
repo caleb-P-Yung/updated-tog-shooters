@@ -20,6 +20,8 @@ tmp_ret = collect_all('pyobjc-framework-Cocoa')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('python-xlib')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('tkinter')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 a = Analysis(
     ['main.py'],
     pathex=[],
@@ -41,7 +43,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='MyGame',
+    name='eggshooter',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -52,13 +54,14 @@ exe = EXE(
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
+    icon='assets/Images/boss.png',
     codesign_identity=None,
     entitlements_file=None,
 )
 if sys.platform == "darwin":
     app = BUNDLE(
         exe,
-        name="MyGame.app",
-        bundle_identifier="com.example.mygame",
-        icon=None,
+        name="eggshooter.app",
+        bundle_identifier="com.caleb.eggshooter",
+        icon='assets/Images/boss.png',
     )
