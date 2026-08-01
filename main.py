@@ -223,7 +223,7 @@ bullet_pygame = pygame.transform.scale(bullet_image, (50, 50))
 Ebullet_pygame = pygame.transform.scale(Ebullet_image, (50, 50))
 boss_bullet_pygame = pygame.transform.scale(Ebullet_image, (100, 100))
 amount =1
-# 
+screen_w, screen_h = display.get_size()
 bullets = []
 Ebullets = []
 enemies = []
@@ -233,7 +233,7 @@ fire_cooldown = 1000
 boss_fire_cooldown = 10
 last_shot_time = 0
 menu_manager = MenuManager(display)
-start_menu = pygame_menu.Menu('ierhgfbdhyvf', width, height, theme=pygame_menu.themes.THEME_BLUE)
+start_menu = pygame_menu.Menu('Welcome', screen_w, screen_h, theme=pygame_menu.themes.THEME_BLUE)
 pygame.display.flip()
 # Load Player Image
 bob = pygame.image.load(player.image).convert_alpha()
@@ -1134,7 +1134,7 @@ if not os.path.exists(SETTINGS_PATH):
             OutPutlog = settings.get("OutPutlog", False)
 def start_buttons():
     start_menu.add.text_input("type your name: ", copy_paste_enable=True, onreturn=Main)
-    start_menu.add.button("Quit if you're not brave enough", pygame_menu.events.EXIT)
+    start_menu.add.button("Quit if you're Stoopid", pygame_menu.events.EXIT)
 try:
                             start_sound.set_volume(1.0)
                             start_sound.play()
