@@ -481,7 +481,7 @@ def Main(player_name):
 
     r=100
     try:
-                    # background_sound.play(loops=-1)
+                    background_sound.play(loops=-1)
                     pass
                     
     except AttributeError:
