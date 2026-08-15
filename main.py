@@ -61,27 +61,31 @@ SETTINGS_PATH = os.path.join(APP_DIR, "Settings.json")
 LOG_PATH = os.path.join(APP_DIR, "log.txt")
 LOGS_DIR = os.path.join(APP_DIR, "oldlogs")
 SCORCES_PATH = os.path.join(APP_DIR, "scores.json")
-if sys.platform == "darwin":
-    if getattr(sys, 'frozen', False):
-        # .app bundle: walk up from Contents/MacOS/EggShooter to the .app itself
-        exe_path = os.path.realpath(sys.executable)
-        app_bundle_path = exe_path
-        while not app_bundle_path.endswith(".app"):
-            app_bundle_path = os.path.dirname(app_bundle_path)
-        check_path = os.path.dirname(app_bundle_path)  # the folder containing the .app
-    else:
-        check_path = os.path.dirname(os.path.realpath(__file__))
-elif sys.platform == "win32":
-    if getattr(sys, 'frozen', False):
-        # Running as a packaged .exe
-        exe_path = os.path.realpath(sys.executable)
-        exe_dir = os.path.dirname(exe_path)
-    else:
-        exe_dir = os.path.dirname(os.path.realpath(__file__))
-if sys.platform == "darwin" and check_path != "/Applications":
-        show_popup_and_exit("please move the app to the applications folder","Error")
-if sys.platform == "win32" and exe_dir != os.path.join(os.environ["ProgramFiles"], "EggShooter"):
-        show_popup_and_exit("please move the app to the Program Files folder","Error")
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+cwd = os.getcwd()
+if cwd != SCRIPT_DIR:
+    if sys.platform == "darwin":
+        if getattr(sys, 'frozen', False):
+            # .app bundle: walk up from Contents/MacOS/EggShooter to the .app itself
+            exe_path = os.path.realpath(sys.executable)
+            app_bundle_path = exe_path
+            while not app_bundle_path.endswith(".app"):
+                app_bundle_path = os.path.dirname(app_bundle_path)
+            check_path = os.path.dirname(app_bundle_path)  # the folder containing the .app
+        else:
+            check_path = os.path.dirname(os.path.realpath(__file__))
+    elif sys.platform == "win32":
+        if getattr(sys, 'frozen', False):
+            # Running as a packaged .exe
+            exe_path = os.path.realpath(sys.executable)
+            exe_dir = os.path.dirname(exe_path)
+        else:
+            exe_dir = os.path.dirname(os.path.realpath(__file__))
+    if sys.platform == "darwin" and check_path != "/Applications":
+            show_popup_and_exit("please move the app to the applications folder","Error")
+    if sys.platform == "win32" and exe_dir != os.path.join(os.environ["ProgramFiles"], "EggShooter"):
+            show_popup_and_exit("please move the app to the Program Files folder","Error")
 
 #time formatting for logs
 formatted_time = f"({datetime.now().strftime("%m-%d-%Y-%H-%M-%S")})"
