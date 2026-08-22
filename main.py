@@ -54,16 +54,19 @@ def get_app_support_dir():
     os.makedirs(base, exist_ok=True)
     return base
 
-
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+cwd = os.getcwd()
 #checking if in correct folder
-APP_DIR=get_app_support_dir()
+if cwd != SCRIPT_DIR:
+    APP_DIR=get_app_support_dir()
+if cwd == SCRIPT_DIR:
+         APP_DIR="./"
 SETTINGS_PATH = os.path.join(APP_DIR, "Settings.json")
 LOG_PATH = os.path.join(APP_DIR, "log.txt")
 LOGS_DIR = os.path.join(APP_DIR, "oldlogs")
 SCORCES_PATH = os.path.join(APP_DIR, "scores.json")
+STARTSOUND =[resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup.wav"),resource_path("assets/sounds/startup2.wav"),resource_path("assets/sounds/startup2.wav"),resource_path("assets/sounds/none.wav"),resource_path("assets/sounds/none.wav")]
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-cwd = os.getcwd()
 if cwd != SCRIPT_DIR:
     if sys.platform == "darwin":
         if getattr(sys, 'frozen', False):
@@ -201,7 +204,7 @@ if sound_enabled:
     warning_sound = pygame.mixer.Sound(resource_path("assets/sounds/warning.mp3"))
     background_sound = pygame.mixer.Sound(resource_path("assets/sounds/title.wav"))
     kill_sound = pygame.mixer.Sound(resource_path("assets/sounds/Killed.wav"))
-    start_sound = pygame.mixer.Sound(resource_path("assets/sounds/Startup.wav"))
+    start_sound = pygame.mixer.Sound(random.choice(STARTSOUND))
     shutdown_sound = pygame.mixer.Sound(resource_path("assets/sounds/Shutdown.wav"))
 
 else:
@@ -218,7 +221,7 @@ cat=pygame.image.load(resource_path("assets/Images/cat.JPG"))
 
 
 
-width, height = pygame.display.set_mode((900, 900)).get_size()
+width, height = pygame.display.set_mode((0, 0)).get_size()
 display = pygame.display.set_mode((0, 0), pygame.RESIZABLE)
 pygamepopup.init()
 bullet_image = pygame.image.load(resource_path("assets/Images/bullet.png")).convert_alpha()
@@ -409,7 +412,7 @@ def Main(player_name):
     with open(SETTINGS_PATH, "r") as f:
         settings = json.load(f)
     Vsync = settings.get("V-sync", True)
-    doOldPotions = settings.get("Old Potions", True)
+    doOldPotions =  settings.get("Old Potions", False)
     testing = settings.get("Testing", False)
     do5thlevel = settings.get("do5thlevel", False)
     OutPutlog = settings.get("OutPutlog", False)
@@ -560,16 +563,31 @@ def Main(player_name):
                         refresh_rate = screen.maximumFramesPerSecond()
                         clock.tick(refresh_rate)
                         disRF=f"Refresh Rate:{refresh_rate}"
-                    if platform.system() == "Linux":
-                        # Use xrandr to get the refresh rate
-                        import subprocess
-                        output = subprocess.check_output("xrandr | grep '*' | awk '{print $1}'", shell=True)
-                        refresh_rate = float(output.split()[0].decode('utf-8').split('x')[1])
-                        clock.tick(refresh_rate)
-                        disRF=f"Refresh Rate:{refresh_rate}"
                         
                 elif not Vsync:
                     clock.tick()
+                    if platform.system() == "Windows":
+                                            import ctypes
+                                            # Define minimal DEVMODE structure needed for display frequency
+                                            class DEVMODE(ctypes.Structure):
+                                                _fields_ = [("dmDeviceName", ctypes.c_char * 32),
+                                                            ("unused1", ctypes.c_byte * 84),
+                                                            ("dmFields", ctypes.c_ulong),
+                                                            ("unused2", ctypes.c_byte * 24),
+                                                            ("dmDisplayFrequency", ctypes.c_ulong)]
+
+                                            # Query the primary display settings for the frequency
+                                            dm = DEVMODE()
+                                            ctypes.windll.user32.EnumDisplaySettingsA(None, -1, ctypes.byref(dm))
+
+
+                                            disRF=f"Refresh Rate:{dm.dmDisplayFrequency}"
+                    if platform.system() == "Darwin":
+                                            from AppKit import NSScreen
+                                            screen = NSScreen.mainScreen()  # the screen with active focus
+                                            refresh_rate = screen.maximumFramesPerSecond()
+
+                                            disRF=f"Refresh Rate:{refresh_rate}"
             except Exception as e:
                 if not os.path.exists(LOG_PATH) and OutPutlog:
                     default_settings = f"{formatted_time}: {player_name}: Error: {e}\n"
@@ -695,10 +713,11 @@ def Main(player_name):
                                     break
 
                             # Compact inventory
-                            inventory = [item for item in inventory if item is not None]
+                            if not doOldPotions:
+                                inventory = [item for item in inventory if item is not None]
 
-                            while len(inventory) < len(slots):
-                                inventory.append(None)
+                                while len(inventory) < len(slots):
+                                    inventory.append(None)
             # ------------- PLAYER MOVEMENT LIMITS ----------------
             if not menu_manager.active_menu and not game_lost and not paused:
 
