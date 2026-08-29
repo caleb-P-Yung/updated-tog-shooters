@@ -1,47 +1,125 @@
-Time: (07-19-2026-13-29-45)
-(07-19-2026-13-29-45): Trying to initalize the font
-(07-19-2026-13-29-45): Trying to initalize the font
-(07-19-2026-13-29-45): bob: launched main function and got settings from Settings.json
-(07-19-2026-13-29-45): bob: Launching main loop
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: Appended powerup: h
-(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061B935C0>
-(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061BCC770>
-(07-19-2026-13-29-45): bob: deleted bullet:<Bullet.Bullet object at 0x0000028061BCD430>
-(07-19-2026-13-29-45): sys: quited the game
+Time: (08-29-2026-10-32-43)
+(08-29-2026-10-32-43): Trying to initalize the font
+(08-29-2026-10-32-43): bob: launched main function and got settings from Settings.json
+(08-29-2026-10-32-43): bob: Launching main loop
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: saved score for bob: 1
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x10ca98690>
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x1285ba720>
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: Appended powerup: h
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x128f9b7d0>
+(08-29-2026-10-32-43): bob: saved score for bob: 2
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6989f0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b698ad0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x128e66ba0>
+(08-29-2026-10-32-43): bob: saved score for bob: 3
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b698a60>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x128e66ba0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b698c20>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b698a60>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6989f0>
+(08-29-2026-10-32-43): bob: saved score for bob: 4
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699010>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b698bb0>
+(08-29-2026-10-32-43): bob: Appended powerup: st
+(08-29-2026-10-32-43): bob: saved score for bob: 5
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699630>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699710>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6995c0>
+(08-29-2026-10-32-43): bob: saved score for bob: 6
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699da0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699ef0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699d30>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a200>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a190>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699be0>
+(08-29-2026-10-32-43): bob: saved score for bob: 7
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a900>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a5f0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b699ef0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a350>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a970>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69ac10>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69a740>
+(08-29-2026-10-32-43): bob: saved score for bob: 8
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69b700>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69b850>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69b8c0>
+(08-29-2026-10-32-43): bob: saved score for bob: 9
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69b850>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dc7c0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dc9f0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dc6e0>
+(08-29-2026-10-32-43): bob: saved score for bob: 10
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b69b850>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dcc90>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dcc20>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dd320>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6ddbe0>
+(08-29-2026-10-32-43): bob: saved score for bob: 11
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6dcc20>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6de120>
+(08-29-2026-10-32-43): bob: saved score for bob: 12
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6de820>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6de970>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6de120>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6df310>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6df3f0>
+(08-29-2026-10-32-43): bob: deleted bullet:<Bullet.Bullet object at 0x12b6df150>
+(08-29-2026-10-32-43): bob: saved score for bob: 13
+(08-29-2026-10-32-43): bob: saved score for bob: 14
+(08-29-2026-10-32-43): bob: saved score for bob: 15
+(08-29-2026-10-32-43): sys: quited the game

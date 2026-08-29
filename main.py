@@ -235,8 +235,11 @@ bullets = []
 Ebullets = []
 enemies = []
 boss_bullet = []
-bullet_speed = 7
-fire_cooldown = 1000
+player_bullet_speed = 25
+enemy_bullet_speed = 10
+boss_bullet_speed = enemy_bullet_speed +5
+fire_cooldown = 250
+enemy_fire_cooldown = 2000
 boss_fire_cooldown = 10
 last_shot_time = 0
 menu_manager = MenuManager(display)
@@ -359,14 +362,14 @@ def shoot_bullet(enemies,bobx,boby,sound):
         dy = e.y - boby
         dist = max((dx**2 + dy**2)**0.5, 0.001)
 
-        new_bullet = Bullet(bobx, boby, (dx/dist) * bullet_speed, (dy/dist) * bullet_speed)
+        new_bullet = Bullet(bobx, boby, (dx/dist) * player_bullet_speed, (dy/dist) * player_bullet_speed)
         bullets.append(new_bullet)
         sound.play()
         last_shot_time = current_time
 def shoot_enemy_bullet(enemy):
     current_time = pygame.time.get_ticks()
 
-    if current_time - enemy.last_shot_time >= fire_cooldown :
+    if current_time - enemy.last_shot_time >= enemy_fire_cooldown :
         e = player  # target player
         dx = e.x - (enemy.x + random.randint(-500, 500))
         dy = e.y - (enemy.y + random.randint(-500, 500))
@@ -375,8 +378,8 @@ def shoot_enemy_bullet(enemy):
         new_bullet = EBullet(
             enemy.x,
             enemy.y,
-            (dx/dist) * bullet_speed,
-            (dy/dist) * bullet_speed
+            (dx/dist) * enemy_bullet_speed,
+            (dy/dist) * enemy_bullet_speed
         )
 
         Ebullets.append(new_bullet)
@@ -393,8 +396,8 @@ def shoot_boss_bullet(enemy):
         new_bullet = EBullet(
             enemy.x,
             enemy.y,
-            (dx/dist) * bullet_speed,
-            (dy/dist) * bullet_speed
+            (dx/dist) * boss_bullet_speed,
+            (dy/dist) * boss_bullet_speed
         )
 
         boss_bullet.append(new_bullet)
@@ -427,7 +430,7 @@ def Main(player_name):
                 f.write(default_settings)
     paused = False
     global paused_menu
-    paused_menu = pygame_menu.Menu('Paused', width, height, theme=pygame_menu.themes.THEME_BLUE)
+    paused_menu = pygame_menu.Menu('Paused', 1000, 900, theme=pygame_menu.themes.THEME_BLUE)
    
     
 
@@ -457,7 +460,7 @@ def Main(player_name):
     popup_shown = False
     game_lost = False
 
-    player_speed = 2
+    player_speed = 5
     player_speed_temp=0.25
 
     SpowerCoolDown=1
@@ -601,7 +604,7 @@ def Main(player_name):
             Ememy_cooldown+=1
             boss_cooldown+=0.5
 
-            spin+=1
+            spin+=2
             player.x, player.y = bobx,boby
             
 
