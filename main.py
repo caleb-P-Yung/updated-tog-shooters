@@ -901,7 +901,9 @@ def Main(player_name):
                             isSpeedCol = True
                         powerups.remove(p)
                 if p.type == "bo":
-                     pass
+                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2) and do5thlevel and score ==100:
+                          enemies.clear()
+                          boss.clear()
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
                 if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
