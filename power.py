@@ -14,7 +14,7 @@ class powerup:
         else:
             self.x = random.randint(0+10, maxx-10)
             self.y = random.randint(0+10, maxy-290)
-        self.types = types=["st","s","h","sp"]
+        self.types = types=["st","s","h","sp","bo"]
         self.type=type
     def gettype(self):
         for i in self.types:return i
@@ -27,3 +27,5 @@ class powerup:
             screen.blit(pygame.transform.scale(pygame.image.load(self.resource_path("assets/Images/health.png")).convert_alpha(), (50, 50)), (self.x, self.y))
         if self.type == "sp":
             screen.blit(pygame.transform.scale(pygame.image.load(self.resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)), (self.x, self.y))
+        if self.type == "bo":
+            screen.blit(pygame.transform.scale(pygame.image.load(self.resource_path("assets/Images/boom.png")).convert_alpha(), (50, 50)), (self.x, self.y))

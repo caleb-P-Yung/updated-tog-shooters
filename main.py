@@ -900,7 +900,8 @@ def Main(player_name):
                         else:
                             isSpeedCol = True
                         powerups.remove(p)
-
+                if p.type == "bo":
+                     pass
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
                 if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)
