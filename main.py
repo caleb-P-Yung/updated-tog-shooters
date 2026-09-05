@@ -479,7 +479,7 @@ def Main(player_name):
     powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
     powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
     powerups.append(powerup(screen_w,screen_h,"h",doOldPotions))
-    powerups.append(powerup(screen_w,screen_h,"sp",doOldPotions))
+    powerups.append(powerup(screen_w,screen_h,"bo",doOldPotions))
         # MULTIPLE ENEMIES
     time.sleep(4.814058780670166)
     # if not background_sound_channel.get_busy() and not start_sound_channel.get_busy() and not shutdown_sound_channel.get_busy() and not SoundPlayed:
@@ -487,7 +487,7 @@ def Main(player_name):
     lvl2_inc = 0
     lvl3_inc = 0
     lvl4_inc = 0
-    score = 0
+    score = 100
 
     r=100
     try:
@@ -540,6 +540,15 @@ def Main(player_name):
     "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
 }
     while running:
+            if not os.path.exists(LOG_PATH) and OutPutlog:
+                default_settings = f"{bobx}, {boby}\n"
+                with open(LOG_PATH, "a") as f:
+                    f.write(default_settings)
+            else:
+                if OutPutlog:
+                    default_settings = f"{bobx}, {boby}\n"
+                    with open(LOG_PATH, "a") as f:
+                        f.write(default_settings)
             label = paused_menu.get_widget("score")
             label.set_title(f"Score: {score}")
             try:
@@ -901,9 +910,19 @@ def Main(player_name):
                             isSpeedCol = True
                         powerups.remove(p)
                 if p.type == "bo":
-                     if (p.x - r/2 <= bobx <= p.x + r/2) and (p.y - r/2 <= boby <= p.y + r/2) and do5thlevel and score ==100:
+                    if not os.path.exists(LOG_PATH) and OutPutlog and do5thlevel:
+                        default_settings = f"x: {p.x} y: {p.y}\n"
+                        with open(LOG_PATH, "a") as f:
+                            f.write(default_settings)
+                    else:
+                        if OutPutlog:
+                            default_settings = f"x: {p.x} y: {p.y}\n"
+                            with open(LOG_PATH, "a") as f:
+                                f.write(default_settings)
+                    if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and score >=100:
                           enemies.clear()
                           boss.clear()
+                          powerups.remove(p)
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
                 if (not isStunCol or not testing and Ememy_cooldown%2==0) and not paused:shoot_enemy_bullet(enemy=e)

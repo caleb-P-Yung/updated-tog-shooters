@@ -2,6 +2,6 @@
     "V-sync": false,
     "Old Potions": false,
     "Testing": false,
-    "do5thlevel": false,
+    "do5thlevel": true,
     "OutPutlog": true
 }
