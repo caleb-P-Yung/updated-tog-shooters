@@ -25,7 +25,7 @@ class Enemy:
             )
         if self.type == "boss":
             self.speed = speed * 2
-            self.health = 1
+            self.health = 200
             self.image = pygame.transform.scale(
                 pygame.image.load(resource_path("assets/Images/Boss.png")).convert_alpha(),
                 (200, 200)

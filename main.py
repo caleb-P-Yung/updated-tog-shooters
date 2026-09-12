@@ -26,6 +26,8 @@ from pygamepopup.components import Button, InfoBox
 from pygamepopup.menu_manager import MenuManager
 from tkinter import messagebox
 #deifining need functions
+#class for bullets
+
 def show_popup_and_exit(message, title="Error"):
     root = tk.Tk()
     root.withdraw()
@@ -353,7 +355,7 @@ def get_score(username, filename=SCORCES_PATH ):
         data = json.load(f)
     return data.get(username)
 
-def shoot_bullet(enemies,bobx,boby,sound):
+def shoot_bullet(enemies,bobx,boby,sound,boss):
     global last_shot_time
     current_time = pygame.time.get_ticks()
     if current_time - last_shot_time >= fire_cooldown and enemies:
@@ -361,11 +363,21 @@ def shoot_bullet(enemies,bobx,boby,sound):
         dx = e.x - bobx
         dy = e.y - boby
         dist = max((dx**2 + dy**2)**0.5, 0.001)
-
         new_bullet = Bullet(bobx, boby, (dx/dist) * player_bullet_speed, (dy/dist) * player_bullet_speed)
         bullets.append(new_bullet)
         sound.play()
         last_shot_time = current_time
+
+    if current_time - last_shot_time >= fire_cooldown and boss:
+            e = boss[0]  # shoot nearest enemy
+            dx = e.x - bobx
+            dy = e.y - boby
+            dist = max((dx**2 + dy**2)**0.5, 0.001)
+    
+            new_bullet = Bullet(bobx, boby, (dx/dist) * player_bullet_speed, (dy/dist) * player_bullet_speed)
+            bullets.append(new_bullet)
+            sound.play()
+            last_shot_time = current_time
 def shoot_enemy_bullet(enemy):
     current_time = pygame.time.get_ticks()
 
@@ -506,7 +518,7 @@ def Main(player_name):
                         f.write(default_settings)
     
     pygame.key.set_repeat()
-    Spawn_e(1,enemies,Enemy)
+    Spawn_e(2,enemies,Enemy)
     bobx, boby = player.x, player.y
     
     paused_menu.add.label(f"Score: {score}","score")
@@ -540,15 +552,6 @@ def Main(player_name):
     "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
 }
     while running:
-            if not os.path.exists(LOG_PATH) and OutPutlog:
-                default_settings = f"{bobx}, {boby}\n"
-                with open(LOG_PATH, "a") as f:
-                    f.write(default_settings)
-            else:
-                if OutPutlog:
-                    default_settings = f"{bobx}, {boby}\n"
-                    with open(LOG_PATH, "a") as f:
-                        f.write(default_settings)
             label = paused_menu.get_widget("score")
             label.set_title(f"Score: {score}")
             try:
@@ -656,9 +659,9 @@ def Main(player_name):
             current_time = pygame.time.get_ticks()
             keys = pygame.key.get_pressed()
             mouse_buttons = pygame.mouse.get_pressed()
-            if not menu_manager.active_menu and not game_lost:
+            if not menu_manager.active_menu and not game_lost and not paused and not game_won:
                 if mouse_buttons[0]:  # left button held
-                    shoot_bullet(enemies,bobx,boby,kill_sound)
+                    shoot_bullet(enemies,bobx,boby,kill_sound,boss)
             for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         
@@ -731,7 +734,7 @@ def Main(player_name):
                                 while len(inventory) < len(slots):
                                     inventory.append(None)
             # ------------- PLAYER MOVEMENT LIMITS ----------------
-            if not menu_manager.active_menu and not game_lost and not paused:
+            if not menu_manager.active_menu and not game_lost and not paused and not game_won:
 
                 if keys[pygame.K_a] and bobx > 0:
                     bobx -= player_speed
@@ -763,7 +766,7 @@ def Main(player_name):
                     boby += player_speed
 
                 if left_click_held:
-                    shoot_bullet(enemies,bobx-1,boby+1,kill_sound)
+                    shoot_bullet(enemies,bobx-1,boby+1,kill_sound,boss)
                     
                 
 
@@ -802,7 +805,7 @@ def Main(player_name):
                                 f.write(default_settings)
                     boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl3_img,(w,h)),(0,0))
-            if score >= 60 and score < 80:
+            if (score >= 60 and score < 80) or not do5thlevel:
                 lvl3_inc +=1
                 if lvl3_inc == 1:
                     if not os.path.exists(LOG_PATH) and OutPutlog:
@@ -816,7 +819,7 @@ def Main(player_name):
                                 f.write(default_settings)
                         boss.append(Enemy(random.randint(0, 800), random.randint(0, 800), type="boss"))
                 display.blit(pygame.transform.scale(lvl4_img,(w,h)),(0,0))
-            if score >= 80 and do5thlevel:
+            if (score >= 80) and (do5thlevel):
                 lvl4_inc +=1
                 if lvl4_inc == 1:
                     if not os.path.exists(LOG_PATH) and OutPutlog:
@@ -910,18 +913,9 @@ def Main(player_name):
                             isSpeedCol = True
                         powerups.remove(p)
                 if p.type == "bo":
-                    if not os.path.exists(LOG_PATH) and OutPutlog and do5thlevel:
-                        default_settings = f"x: {p.x} y: {p.y}\n"
-                        with open(LOG_PATH, "a") as f:
-                            f.write(default_settings)
-                    else:
-                        if OutPutlog:
-                            default_settings = f"x: {p.x} y: {p.y}\n"
-                            with open(LOG_PATH, "a") as f:
-                                f.write(default_settings)
+                    #Remove the and score >=100 after adding the shockwave
                     if (p.x - r <= bobx <= p.x + r) and (p.y - r <= boby <= p.y + r) and score >=100:
-                          enemies.clear()
-                          boss.clear()
+                          p.chase(enemies,boss)
                           powerups.remove(p)
             # ------------- ENEMY MOVEMENT + DAMAGE TO PLAYER ----------------
             for e in enemies[:]:                                    
@@ -1135,11 +1129,11 @@ def Main(player_name):
                         if score % 2 ==0:
                             Spawn(1,spikes,screen_w,screen_h-290,r,bobx,boby)
                             
-                        Spawn_e(2,enemies,Enemy)
-                        # elif score < end_score:
+                        # Spawn_e(2,enemies,Enemy)
+                        # if score < end_score:
                         #     Spawn_e(1,enemies,Enemy)
-            # if not enemies:
-            #         game_won = True
+            if not enemies and not boss:
+                game_won = True
 
             if game_won and not popup_shown:
                 menu_manager.open_menu(win_popup)
