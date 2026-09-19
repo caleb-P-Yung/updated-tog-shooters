@@ -245,6 +245,13 @@ enemy_fire_cooldown = 2000
 boss_fire_cooldown = 10
 last_shot_time = 0
 menu_manager = MenuManager(display)
+controls_menu = pygame_menu.Menu('Controls', 1000, 900, theme=pygame_menu.themes.THEME_BLUE)
+controls_menu.add.label("Controls:")
+controls_menu.add.label("WASD to move")
+controls_menu.add.label("Left Mouse Button to shoot")
+controls_menu.add.label("U to use powerup")
+controls_menu.add.label("ESC to pause")
+controls_menu.add.button('Back', pygame_menu.events.BACK)
 start_menu = pygame_menu.Menu('Welcome', screen_w, screen_h, theme=pygame_menu.themes.THEME_BLUE)
 pygame.display.flip()
 # Load Player Image
@@ -502,20 +509,7 @@ def Main(player_name):
     score = 100
 
     r=100
-    try:
-                    background_sound.play(loops=-1)
-                    pass
-                    
-    except AttributeError:
-            if not os.path.exists(LOG_PATH) and OutPutlog:
-                default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                with open(LOG_PATH, "a") as f:
-                    f.write(default_settings)
-            else:
-                if OutPutlog:
-                    default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
-                    with open(LOG_PATH, "a") as f:
-                        f.write(default_settings)
+    
     
     pygame.key.set_repeat()
     Spawn_e(2,enemies,Enemy)
@@ -524,6 +518,7 @@ def Main(player_name):
     paused_menu.add.label(f"Score: {score}","score")
     paused_menu.add.label("")
     paused_menu.add.button('Resume',close_menu)
+    paused_menu.add.button("Controls", controls_menu)
     paused_menu.add.button('Quit Game',quit_game)
     Spawn(3,spikes,screen_w,screen_h-290,r,bobx,boby)
     running = True
@@ -552,6 +547,20 @@ def Main(player_name):
     "sp": pygame.transform.scale(pygame.image.load(resource_path("assets/Images/speed.png")).convert_alpha(), (50, 50)),
 }
     while running:
+            try:
+                                background_sound.play(loops=-1)
+                                pass
+                                
+            except AttributeError:
+                        if not os.path.exists(LOG_PATH) and OutPutlog:
+                            default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                            with open(LOG_PATH, "a") as f:
+                                f.write(default_settings)
+                        else:
+                            if OutPutlog:
+                                default_settings = f"{formatted_time}: {player_name}: Error: womp womp your system doesn't support audio \n"
+                                with open(LOG_PATH, "a") as f:
+                                    f.write(default_settings)
             label = paused_menu.get_widget("score")
             label.set_title(f"Score: {score}")
             try:
@@ -1176,6 +1185,7 @@ if not os.path.exists(SETTINGS_PATH):
             OutPutlog = settings.get("OutPutlog", False)
 def start_buttons():
     start_menu.add.text_input("type your name: ", copy_paste_enable=True, onreturn=Main)
+    start_menu.add.button("Controls", controls_menu)
     start_menu.add.button("Quit if you're Stoopid", pygame_menu.events.EXIT)
 try:
                             start_sound.set_volume(1.0)
