@@ -656,7 +656,7 @@ def Main(player_name):
             boss_text=Comic_sans.render(boss_string, False, (255, 0, 0))
             boss_string2="WARNING John Cena is HERE!"
             boss_text2=Comic_sans.render(boss_string2, False, (255, 0, 0))
-            string2=f"Your HighScore is {highscore["Highscore"]}"
+            string2= f'Your HighScore is {highscore["Highscore"]}'
             string = f"Your current score is {score}"
             disFPS= f"FPS:{math.ceil(clock.get_fps())}"
             
